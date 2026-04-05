@@ -1,0 +1,112 @@
+.page {
+  min-height: 100vh;
+  background: #ececec;
+  display: flex;
+  flex-direction: column;
+}
+
+.content {
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 46px 24px 120px;
+  flex: 1;
+}
+
+.title {
+  font-size: 28px;
+  line-height: 1.2;
+  font-weight: 500;
+  color: #111111;
+  margin-bottom: 52px;
+}
+
+.actionsSection {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(220px, 1fr));
+  gap: 42px;
+  align-items: start;
+  margin-bottom: 34px;
+}
+
+.yellowCard {
+  background: #efd98b;
+}
+
+.blueCard {
+  background: #5b97ea;
+}
+
+.greenCard {
+  background: #98e983;
+}
+
+.sightingsSection {
+  margin-top: 12px;
+}
+
+.sectionTitle {
+  font-size: 24px;
+  line-height: 1.2;
+  font-weight: 500;
+  color: #111111;
+  margin-bottom: 18px;
+}
+
+.sightingsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(260px, 1fr));
+  gap: 22px;
+}
+
+.arrowWrapper {
+  width: 120px;
+  height: 84px;
+  margin: 26px auto 0;
+  position: relative;
+}
+
+.arrowLeft,
+.arrowRight {
+  position: absolute;
+  top: 8px;
+  width: 2px;
+  height: 78px;
+  background: #202020;
+  transform-origin: top center;
+}
+
+.arrowLeft {
+  left: 40px;
+  transform: rotate(-35deg);
+}
+
+.arrowRight {
+  right: 40px;
+  transform: rotate(35deg);
+}
+
+@media (max-width: 1024px) {
+  .actionsSection,
+  .sightingsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .title {
+    margin-bottom: 32px;
+  }
+}
+
+@media (max-width: 640px) {
+  .content {
+    padding: 28px 16px 80px;
+  }
+
+  .title {
+    font-size: 22px;
+  }
+
+  .sectionTitle {
+    font-size: 21px;
+  }
+}

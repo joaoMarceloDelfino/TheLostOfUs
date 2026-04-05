@@ -1,0 +1,96 @@
+.page {
+  min-height: calc(100vh - 160px);
+  background: #efefef;
+}
+
+.container {
+  max-width: 1220px;
+  margin: 0 auto;
+  padding: 44px 28px 120px;
+}
+
+.title {
+  font-size: 28px;
+  line-height: 1.2;
+  font-weight: 500;
+  color: #111111;
+  margin-bottom: 48px;
+}
+
+.actionsSection {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 72px;
+  margin-bottom: 44px;
+  justify-items: center;
+}
+
+.sightingsSection {
+  margin-top: 10px;
+}
+
+.sectionTitle {
+  font-size: 24px;
+  font-weight: 500;
+  color: #111111;
+  margin-bottom: 18px;
+}
+
+.sightingsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+}
+
+.arrowWrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+.arrow {
+  display: inline-block;
+  font-size: 140px;
+  line-height: 1;
+  color: #1f1f1f;
+  font-weight: 200;
+  transform: translateY(-8px);
+}
+
+@media (max-width: 1100px) {
+  .actionsSection {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+
+  .sightingsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .title {
+    font-size: 24px;
+  }
+
+  .sectionTitle {
+    font-size: 22px;
+  }
+
+  .arrow {
+    font-size: 110px;
+  }
+}
+
+@media (max-width: 700px) {
+  .container {
+    padding: 28px 16px 80px;
+  }
+
+  .title {
+    font-size: 22px;
+    margin-bottom: 32px;
+  }
+
+  .sectionTitle {
+    font-size: 20px;
+  }
+}
