@@ -6,7 +6,7 @@ export default function HomeFooter() {
       <div className={styles.inner}>
         <div className={styles.left}>
           <span>Política de Privacidade</span>
-          <span>©2025 TheLostOfUs</span>
+          <span>©2026 TheLostOfUs</span>
         </div>
 
         <div className={styles.right}>
