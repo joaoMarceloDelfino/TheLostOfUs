@@ -1,8 +1,93 @@
 import PostService from "@/services/PostService";
 import { PostValidationError } from "@/services/PostService";
-import type { CreatePostBody } from "@/src/types/post";
 import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
+
+export async function DELETE(request: NextRequest) {
+    const { userId } = await auth();
+
+    if (!userId) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const url = new URL(request.url);
+    const id = url.searchParams.get("id");
+    if (!id) {
+        return NextResponse.json({ error: "Missing post id" }, { status: 400 });
+    }
+
+    try {
+        const deleted = await PostService.deletePost(id, userId);
+        return NextResponse.json(deleted, { status: 200 });
+    } catch (error) {
+        if (error instanceof PostValidationError && error.message === "Post not found") {
+            return NextResponse.json(
+                {
+                    error: "Post not found",
+                },
+                { status: 404 }
+            );
+        }
+        if (error instanceof PostValidationError && error.message === "You are not allowed to delete this post") {
+            return NextResponse.json(
+                {
+                    error: "You are not allowed to delete this post",
+                },
+                { status: 403 }
+            );
+        }
+        const message = error instanceof Error ? error.message : "Failed to delete post";
+        return NextResponse.json(
+            {
+                error: "Failed to delete post",
+                details: message,
+            },
+            { status: 500 }
+        );
+    }
+}
+
+export async function PUT(request: NextRequest) {
+    const { userId } = await auth();
+
+    if (!userId) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const url = new URL(request.url);
+    const id = url.searchParams.get("id");
+    if (!id) {
+        return NextResponse.json({ error: "Missing post id" }, { status: 400 });
+    }
+
+    const body = await request.json();
+
+    try {
+        const post = await PostService.updatePost(id, body, userId);
+        return NextResponse.json(post, { status: 200 });
+    } catch (error) {
+        if (error instanceof PostValidationError) {
+            return NextResponse.json(
+                {
+                    error: "Invalid request data",
+                    details: error.message,
+                },
+                { status: 400 }
+            );
+        }
+
+        const message = error instanceof Error ? error.message : "Failed to update post";
+
+        return NextResponse.json(
+            {
+                error: "Failed to update post",
+                details: message,
+            },
+            { status: 500 }
+        );
+    }
+}
+
 
 export async function POST(request: NextRequest) {
     const { userId } = await auth();
@@ -11,16 +96,10 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    let body: CreatePostBody;
-
+    const body = await request.json();
+    
     try {
-        body = (await request.json()) as CreatePostBody;
-    } catch {
-        return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
-    }
-
-    try {
-        const post = await PostService.createPost(body);
+        const post = await PostService.createPost(body, userId);
 
         return NextResponse.json(post, { status: 201 });
     } catch (error) {
