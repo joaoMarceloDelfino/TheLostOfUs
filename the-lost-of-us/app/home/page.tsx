@@ -4,21 +4,21 @@ import SightingCard from "@/app/components/home/SightingCard";
 
 const actions = [
   {
-    imageSrc: "/images/lost-pet.png",
+    imageSrc: "/images/image.png",
     imageAlt: "Perdi meu pet",
     title: "PERDI MEU PET –",
     description: "Cadastrar anuncio de desaparecimento",
     backgroundColor: "#ecd789",
   },
   {
-    imageSrc: "/images/sighting-pet.png",
+    imageSrc: "/images/localizacao.png",
     imageAlt: "Avistei um pet",
     title: "AVISTEI UM PET –",
     description: "Reportar animal encontrado na rua",
     backgroundColor: "#5a98eb",
   },
   {
-    imageSrc: "/images/alerts.png",
+    imageSrc: "/images/sino.png",
     imageAlt: "Meus alertas",
     title: "MEUS ALERTAS",
     description: "• Gerenciar seus anuncios ativos",
@@ -28,7 +28,7 @@ const actions = [
 
 const sightings = [
   {
-    imageSrc: "/images/animal-1.png",
+    imageSrc: "/images/cachorro1.jpg",
     imageAlt: "Animal avistado 1",
     name: "Nome do animal",
     location: "Local Último avistamento: Rua xxx, bairro xxx, Itajaí",
@@ -36,7 +36,7 @@ const sightings = [
     status: "Status: xxxxxxx",
   },
   {
-    imageSrc: "/images/animal-2.png",
+    imageSrc: "/images/cachorro2.jpg",
     imageAlt: "Animal avistado 2",
     name: "Nome do animal",
     location: "Local Último avistamento: Rua xxx, bairro xxx, Itajaí",
@@ -44,7 +44,7 @@ const sightings = [
     status: "Status: xxxxxxx",
   },
   {
-    imageSrc: "/images/animal-3.png",
+    imageSrc: "/images/cachorro3.jpg",
     imageAlt: "Animal avistado 3",
     name: "Nome do animal",
     location: "Local Último avistamento: Rua xxx, bairro xxx, Itajaí",

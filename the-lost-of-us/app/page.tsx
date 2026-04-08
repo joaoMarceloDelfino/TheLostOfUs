@@ -86,7 +86,7 @@ export default function Page() {
 
         <div className={styles.heroImageCard}>
           <Image
-            src="/images/pets.png"
+            src="/images/muitoscachorros.png"
             alt="Animais"
             width={700}
             height={400}
@@ -116,7 +116,7 @@ export default function Page() {
 
         <div className={styles.infoIllustration}>
           <Image
-            src="/images/notificacoes.png"
+            src="/images/telefone.jpg"
             alt="Notificações"
             width={420}
             height={320}
@@ -127,7 +127,7 @@ export default function Page() {
       <section className={styles.locationSection}>
         <div className={styles.locationIllustration}>
           <Image
-            src="/images/localizacao.png"
+            src="/images/cachorralizacao.png"
             alt="Busca por localização"
             width={260}
             height={260}
