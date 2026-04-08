@@ -35,6 +35,14 @@ class PostService {
         return PostRepository.create(input);
     }
 
+    async getAllPosts(): Promise<posts[]> {
+        return PostRepository.findAll();
+    }
+
+    async getAllPostsByUser(userSub: string): Promise<posts[]> {
+        return PostRepository.findAllByUser(userSub);
+    }
+
     async deletePost(id: string, userSub: string): Promise<posts> {
         const post = await PostRepository.findById(id);
 
@@ -77,7 +85,7 @@ class PostService {
         return PostRepository.update(id, input);
     }
 
-    async findById(id: string): Promise<posts | null>  {
+    async findById(id: string): Promise<posts | null> {
         const post = await PostRepository.findById(id);
         if (!post) {
             return null

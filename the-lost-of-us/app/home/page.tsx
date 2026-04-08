@@ -1,6 +1,10 @@
+"use client"
+
 import styles from "./page.module.css";
 import ActionCard from "@/app/components/home/ActionCard";
 import SightingCard from "@/app/components/home/SightingCard";
+import { useEffect, useState } from "react";
+import { getPosts } from "@/lib/apiClient";
 
 const actions = [
   {
@@ -26,34 +30,27 @@ const actions = [
   },
 ];
 
-const sightings = [
-  {
-    imageSrc: "/images/cachorro1.jpg",
-    imageAlt: "Animal avistado 1",
-    name: "Nome do animal",
-    location: "Local Último avistamento: Rua xxx, bairro xxx, Itajaí",
-    date: "Data último avistamento: xx/xx/xxxx",
-    status: "Status: xxxxxxx",
-  },
-  {
-    imageSrc: "/images/cachorro2.jpg",
-    imageAlt: "Animal avistado 2",
-    name: "Nome do animal",
-    location: "Local Último avistamento: Rua xxx, bairro xxx, Itajaí",
-    date: "Data último avistamento: xx/xx/xxxx",
-    status: "Status: xxxxxxx",
-  },
-  {
-    imageSrc: "/images/cachorro3.jpg",
-    imageAlt: "Animal avistado 3",
-    name: "Nome do animal",
-    location: "Local Último avistamento: Rua xxx, bairro xxx, Itajaí",
-    date: "Data último avistamento: xx/xx/xxxx",
-    status: "Status: xxxxxxx",
-  },
-];
+
+
 
 export default function HomePage() {
+  const [posts, setPosts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setLoading(true);
+    getPosts()
+      .then((data) => {
+        setPosts(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError("Erro ao carregar posts");
+        setLoading(false);
+      });
+  }, []);
+
   return (
     <main className={styles.page}>
       <section className={styles.container}>
@@ -73,26 +70,30 @@ export default function HomePage() {
         </section>
 
         <section className={styles.sightingsSection}>
-          <h2 className={styles.sectionTitle}>Ultimos Avistamentos</h2>
+          <h2 className={styles.sectionTitle}>Ultimas Ocorrências</h2>
 
           <div className={styles.sightingsGrid}>
-            {sightings.map((sighting, index) => (
-              <SightingCard
-                key={index}
-                imageSrc={sighting.imageSrc}
-                imageAlt={sighting.imageAlt}
-                name={sighting.name}
-                location={sighting.location}
-                date={sighting.date}
-                status={sighting.status}
-              />
-            ))}
+            {loading ? (
+              <div>Carregando posts...</div>
+            ) : error ? (
+              <div>{error}</div>
+            ) : posts.length === 0 ? (
+              <div>Nenhum post encontrado.</div>
+            ) : (
+              posts.map((post, index) => (
+                <SightingCard
+                  key={post.id || index}
+                  imageSrc={"/images/animal-1.png"}
+                  imageAlt={""}
+                  name={post.pet_name || "Sem nome"}
+                  location={"Local: Local não informado"}
+                  date={post.last_seen_date ? `Data último avistamento: ${new Date(post.last_seen_date).toLocaleDateString()}` : "Data não informada"}
+                  status={"Ativo"}
+                />
+              ))
+            )}
           </div>
         </section>
-
-        <div className={styles.arrowWrapper}>
-          <span className={styles.arrow}>⌄</span>
-        </div>
       </section>
     </main>
   );

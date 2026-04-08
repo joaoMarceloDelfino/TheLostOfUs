@@ -3,7 +3,7 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import { randomUUID } from "crypto";
 import { CreatePostSchema } from "@/schemas/createPost.schema";
 
-const prismaClient = new PrismaClient({adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL })});
+const prismaClient = new PrismaClient({ adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }) });
 
 
 import { UpdatePostSchema } from "@/schemas/updatePost.schema";
@@ -21,9 +21,22 @@ class PostRepository {
             },
         });
     }
-    
+
     async findById(id: string): Promise<posts | null> {
         return prismaClient.posts.findUnique({ where: { id } });
+    }
+
+    async findAll(): Promise<posts[]> {
+        return prismaClient.posts.findMany({
+            orderBy: { created_at: 'desc' },
+        });
+    }
+
+    async findAllByUser(userSub: string): Promise<posts[]> {
+        return prismaClient.posts.findMany({
+            where: { user_sub: userSub },
+            orderBy: { created_at: 'desc' },
+        });
     }
 
     async update(id: string, data: UpdatePostSchema): Promise<posts | null> {

@@ -1,3 +1,17 @@
+// --- GET USER POSTS ---
+export async function getUserPosts(token?: string) {
+    const response = await api.get("/post/user", {
+        headers: authHeader(token),
+    });
+    return response.data;
+}
+// --- GET POSTS ---
+export async function getPosts(token?: string) {
+    const response = await api.get("/post", {
+        headers: authHeader(token),
+    });
+    return response.data;
+}
 import axios from "axios";
 
 const api = axios.create({

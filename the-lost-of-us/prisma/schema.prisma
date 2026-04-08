@@ -10,11 +10,11 @@ datasource db {
 model comments {
   id           String   @id @db.Uuid
   post_id      String   @db.Uuid
-  user_sub     String   @db.Uuid
+  user_sub     String
   comment_text String
   created_at   DateTime @default(now()) @db.Timestamp(6)
   posts        posts    @relation(fields: [post_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_comments_post")
-  users        users    @relation(fields: [user_sub], references: [user_sub], onDelete: Cascade, onUpdate: NoAction, map: "fk_comments_user")
+
 }
 
 model petimages {
@@ -26,7 +26,7 @@ model petimages {
 
 model posts {
   id                 String                    @id @db.Uuid
-  user_sub           String                    @db.Uuid
+  user_sub           String
   pet_name           String
   description        String?
   last_seen_location Unsupported("geography")?
@@ -34,7 +34,7 @@ model posts {
   created_at         DateTime                  @default(now()) @db.Timestamp(6)
   comments           comments[]
   petimages          petimages[]
-  users              users                     @relation(fields: [user_sub], references: [user_sub], onDelete: Cascade, onUpdate: NoAction, map: "fk_posts_user")
+
   sightings          sightings[]
 }
 
@@ -56,11 +56,4 @@ model spatial_ref_sys {
   proj4text String? @db.VarChar(2048)
 }
 
-model users {
-  id                String     @id @db.Uuid
-  user_sub          String     @unique @db.Uuid
-  profile_image_uri String?
-  created_at        DateTime   @default(now()) @db.Timestamp(6)
-  comments          comments[]
-  posts             posts[]
-}
+

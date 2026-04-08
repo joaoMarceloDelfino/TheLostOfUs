@@ -11,8 +11,8 @@ export default function HomeHeader() {
 
         <nav className={styles.nav}>
           <Link href="/new-occurrence">Nova Ocorrência</Link>
-          <Link href="/home/history">Histórico</Link>
-          <Link href="/home/profile">Meu Perfil</Link>
+          <Link href="/history">Meu Histórico</Link>
+          {/* <Link href="/home/profile">Meu Perfil</Link> */}
         </nav>
       </div>
     </header>

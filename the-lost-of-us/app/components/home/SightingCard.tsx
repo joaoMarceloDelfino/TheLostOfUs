@@ -38,9 +38,9 @@ export default function SightingCard({
         <p>{status}</p>
       </div>
 
-      <button type="button" className={styles.button}>
+      {/* <button type="button" className={styles.button} >
         Saiba mais
-      </button>
+      </button> */}
     </article>
   );
 }

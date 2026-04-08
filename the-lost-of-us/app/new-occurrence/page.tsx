@@ -7,6 +7,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createPost } from "@/lib/apiClient";
 import { createPostSchema } from "@/schemas/createPost.schema";
+import HomeHeader from "@/app/components/home/HomeHeader";
+import HomeFooter from "@/app/components/home/HomeFooter";
+import styles from "../home/page.module.css";
 
 export default function NewOccurrencePage() {
     const { getToken, isSignedIn } = useAuth();
@@ -23,7 +26,7 @@ export default function NewOccurrencePage() {
         defaultValues: {
             petName: "",
             description: "",
-            lastSeenDate: undefined,
+            lastSeenDate: null,
         },
     });
 
@@ -32,11 +35,7 @@ export default function NewOccurrencePage() {
         setSuccess(false);
         try {
             const token = await getToken();
-            const payload = {
-                ...data,
-                lastSeenDate: data.lastSeenDate ? new Date(data.lastSeenDate) : null,
-            };
-            await createPost(payload, token || undefined);
+            await createPost(data, token || undefined);
             setSuccess(true);
             reset();
         } catch (err: any) {
@@ -46,65 +45,118 @@ export default function NewOccurrencePage() {
 
     if (!isSignedIn) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 to-gray-800">
-                <div className="max-w-md w-full p-8 bg-gray-900 rounded-xl shadow-2xl text-center border border-gray-700">
-                    <p className="text-lg text-gray-100">Você precisa estar logado para criar uma ocorrência.</p>
-                </div>
-            </div>
+            <>
+                <HomeHeader />
+                <main className={styles.page} style={{ background: "#fff", minHeight: "calc(100vh - 160px)" }}>
+                    <div className={styles.container} style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: 400 }}>
+                        <div style={{ background: "#fff", borderRadius: 12, boxShadow: "0 2px 12px #0001", padding: 32, maxWidth: 420, width: "100%", textAlign: "center" }}>
+                            <p style={{ fontSize: 18, color: "#222" }}>Você precisa estar logado para criar uma ocorrência.</p>
+                        </div>
+                    </div>
+                </main>
+                <HomeFooter />
+            </>
         );
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 to-gray-800">
-            <div className="max-w-md w-full p-8 bg-gray-900 rounded-xl shadow-2xl border border-gray-700">
-                <h1 className="text-3xl font-extrabold mb-8 text-center text-gray-100 tracking-tight drop-shadow-lg">Nova Ocorrência</h1>
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                    <div>
-                        <label className="block font-semibold mb-2 text-gray-200">Nome do Pet *</label>
-                        <input
-                            type="text"
-                            {...register("petName")}
-                            className="w-full border border-gray-700 bg-gray-800 text-gray-100 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 placeholder-gray-400 transition"
-                            placeholder="Digite o nome do pet"
-                        />
-                        {errors.petName && (
-                            <span className="text-red-400 text-sm mt-1 block">{errors.petName.message}</span>
-                        )}
+        <>
+            <HomeHeader />
+            <main className={styles.page} style={{ background: "#fff", minHeight: "calc(100vh - 160px)" }}>
+                <div className={styles.container} style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: 400 }}>
+                    <div style={{ background: "#fff", borderRadius: 12, boxShadow: "0 2px 12px #0001", padding: 32, maxWidth: 420, width: "100%" }}>
+                        <h1 style={{ fontSize: 26, fontWeight: 700, marginBottom: 32, textAlign: "center", color: "#222" }}>Nova Ocorrência</h1>
+                        <form onSubmit={handleSubmit(onSubmit)}>
+                            <div style={{ marginBottom: 28 }}>
+                                <label style={{ display: "block", fontWeight: 600, marginBottom: 8, color: "#222" }}>Nome do Pet *</label>
+                                <input
+                                    type="text"
+                                    {...register("petName")}
+                                    style={{
+                                        width: "100%",
+                                        border: "1px solid #ccc",
+                                        background: "#fff",
+                                        color: "#222",
+                                        borderRadius: 8,
+                                        padding: "12px 14px",
+                                        fontSize: 16,
+                                        outline: "none"
+                                    }}
+                                    placeholder="Digite o nome do pet"
+                                />
+                                {errors.petName && (
+                                    <span style={{ color: "#e57373", fontSize: 13, marginTop: 4, display: "block" }}>{errors.petName.message}</span>
+                                )}
+                            </div>
+                            <div style={{ marginBottom: 28 }}>
+                                <label style={{ display: "block", fontWeight: 600, marginBottom: 8, color: "#222" }}>Descrição</label>
+                                <textarea
+                                    {...register("description")}
+                                    style={{
+                                        width: "100%",
+                                        border: "1px solid #ccc",
+                                        background: "#fff",
+                                        color: "#222",
+                                        borderRadius: 8,
+                                        padding: "12px 14px",
+                                        fontSize: 16,
+                                        outline: "none",
+                                        minHeight: 80
+                                    }}
+                                    placeholder="Descreva detalhes relevantes (opcional)"
+                                />
+                                {errors.description && (
+                                    <span style={{ color: "#e57373", fontSize: 13, marginTop: 4, display: "block" }}>{errors.description.message}</span>
+                                )}
+                            </div>
+                            <div style={{ marginBottom: 28 }}>
+                                <label style={{ display: "block", fontWeight: 600, marginBottom: 8, color: "#222" }}>Data do último avistamento</label>
+                                <input
+                                    type="date"
+                                    {...register("lastSeenDate", {
+                                        setValueAs: v => v ? new Date(v + "T00:00:00") : null
+                                    })}
+                                    style={{
+                                        width: "100%",
+                                        border: "1px solid #ccc",
+                                        background: "#fff",
+                                        color: "#222",
+                                        borderRadius: 8,
+                                        padding: "12px 14px",
+                                        fontSize: 16,
+                                        outline: "none"
+                                    }}
+                                />
+                                {errors.lastSeenDate && (
+                                    <span style={{ color: "#e57373", fontSize: 13, marginTop: 4, display: "block" }}>{errors.lastSeenDate.message}</span>
+                                )}
+                            </div>
+                            {serverError && <div style={{ color: "#e57373", fontSize: 14, textAlign: "center", fontWeight: 500, marginBottom: 12 }}>{serverError}</div>}
+                            {success && <div style={{ color: "#43a047", fontSize: 14, textAlign: "center", fontWeight: 500, marginBottom: 12 }}>Ocorrência criada com sucesso!</div>}
+                            <button
+                                type="submit"
+                                style={{
+                                    width: "100%",
+                                    background: "#5a98eb",
+                                    color: "#fff",
+                                    padding: "14px 0",
+                                    borderRadius: 8,
+                                    fontWeight: 700,
+                                    fontSize: 16,
+                                    border: "none",
+                                    marginTop: 8,
+                                    cursor: "pointer",
+                                    boxShadow: "0 2px 8px #5a98eb22"
+                                }}
+                                disabled={isSubmitting}
+                            >
+                                {isSubmitting ? "Enviando..." : "Criar Ocorrência"}
+                            </button>
+                        </form>
                     </div>
-                    <div>
-                        <label className="block font-semibold mb-2 text-gray-200">Descrição</label>
-                        <textarea
-                            {...register("description")}
-                            className="w-full border border-gray-700 bg-gray-800 text-gray-100 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 placeholder-gray-400 transition"
-                            rows={3}
-                            placeholder="Descreva detalhes relevantes (opcional)"
-                        />
-                        {errors.description && (
-                            <span className="text-red-400 text-sm mt-1 block">{errors.description.message}</span>
-                        )}
-                    </div>
-                    <div>
-                        <label className="block font-semibold mb-2 text-gray-200">Data do último avistamento</label>
-                        <input
-                            type="date"
-                            {...register("lastSeenDate")}
-                            className="w-full border border-gray-700 bg-gray-800 text-gray-100 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 placeholder-gray-400 transition"
-                        />
-                        {errors.lastSeenDate && (
-                            <span className="text-red-400 text-sm mt-1 block">{errors.lastSeenDate.message}</span>
-                        )}
-                    </div>
-                    {serverError && <div className="text-red-400 text-sm text-center font-medium">{serverError}</div>}
-                    {success && <div className="text-green-400 text-sm text-center font-medium">Ocorrência criada com sucesso!</div>}
-                    <button
-                        type="submit"
-                        className="w-full bg-blue-700 text-white py-3 rounded-lg font-bold hover:bg-blue-800 transition shadow-lg mt-2 disabled:opacity-60 disabled:cursor-not-allowed"
-                        disabled={isSubmitting}
-                    >
-                        {isSubmitting ? "Enviando..." : "Criar Ocorrência"}
-                    </button>
-                </form>
-            </div>
-        </div>
+                </div>
+            </main>
+            <HomeFooter />
+        </>
     );
 }

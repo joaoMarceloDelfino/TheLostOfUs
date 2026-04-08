@@ -1,3 +1,18 @@
+export async function GET() {
+    try {
+        const posts = await PostService.getAllPosts();
+        return NextResponse.json(posts, { status: 200 });
+    } catch (error) {
+        const message = error instanceof Error ? error.message : "Failed to fetch posts";
+        return NextResponse.json(
+            {
+                error: "Failed to fetch posts",
+                details: message,
+            },
+            { status: 500 }
+        );
+    }
+}
 import PostService from "@/services/PostService";
 import { PostValidationError } from "@/services/PostService";
 import { auth } from "@clerk/nextjs/server";
@@ -97,7 +112,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    
+
     try {
         const post = await PostService.createPost(body, userId);
 
