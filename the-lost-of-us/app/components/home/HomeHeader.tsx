@@ -10,7 +10,7 @@ export default function HomeHeader() {
         </Link>
 
         <nav className={styles.nav}>
-          <Link href="/home/new-occurrence">Nova Ocorrência</Link>
+          <Link href="/new-occurrence">Nova Ocorrência</Link>
           <Link href="/home/history">Histórico</Link>
           <Link href="/home/profile">Meu Perfil</Link>
         </nav>
