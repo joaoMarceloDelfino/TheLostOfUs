@@ -111,7 +111,24 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const body = await request.json();
+    const contentType = request.headers.get("content-type") || "";
+    let body: unknown;
+
+    if (contentType.includes("multipart/form-data")) {
+        const formData = await request.formData();
+        const images = formData.getAll("images").filter((value): value is File => value instanceof File);
+        const description = formData.get("description");
+        const lastSeenDate = formData.get("lastSeenDate");
+
+        body = {
+            petName: formData.get("petName"),
+            description: description ? String(description) : null,
+            lastSeenDate: lastSeenDate ? String(lastSeenDate) : null,
+            images,
+        };
+    } else {
+        body = await request.json();
+    }
 
     try {
         const post = await PostService.createPost(body, userId);

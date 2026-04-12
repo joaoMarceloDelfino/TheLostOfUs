@@ -26,8 +26,50 @@ function authHeader(token?: string) {
     return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
+function normalizeFiles(images: unknown): File[] {
+    if (!images) {
+        return [];
+    }
+    if (images instanceof FileList) {
+        return Array.from(images);
+    }
+    if (Array.isArray(images)) {
+        return images.filter((item): item is File => item instanceof File);
+    }
+    return [];
+}
+
 // --- POST ---
 export async function createPost(data: any, token?: string) {
+    const files = normalizeFiles(data?.images);
+
+    if (files.length > 0) {
+        const formData = new FormData();
+        formData.append("petName", data?.petName ?? "");
+
+        if (data?.description) {
+            formData.append("description", data.description);
+        }
+
+        if (data?.lastSeenDate) {
+            const date = data.lastSeenDate instanceof Date
+                ? data.lastSeenDate
+                : new Date(data.lastSeenDate);
+            formData.append("lastSeenDate", date.toISOString());
+        }
+
+        files.forEach((file) => formData.append("images", file));
+
+        const response = await api.post("/post", formData, {
+            headers: {
+                ...authHeader(token),
+                "Content-Type": "multipart/form-data",
+            },
+        });
+
+        return response.data;
+    }
+
     const response = await api.post("/post", data, {
         headers: authHeader(token),
     });

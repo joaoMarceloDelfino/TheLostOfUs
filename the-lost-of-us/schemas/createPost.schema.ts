@@ -8,7 +8,16 @@ export const createPostSchema = z.object({
             z.string().datetime({ message: "Invalid lastSeenDate." }).transform((v) => new Date(v)),
             z.date({ message: "Invalid lastSeenDate." }),
             z.null()
-        ])
+        ]),
+    images: z.preprocess(
+        (value) => {
+            if (typeof FileList !== "undefined" && value instanceof FileList) {
+                return Array.from(value);
+            }
+            return value;
+        },
+        z.array(z.instanceof(File, { message: "Each image must be a valid file." }))
+    )
 });
 
 export type CreatePostSchema = z.infer<typeof createPostSchema>;

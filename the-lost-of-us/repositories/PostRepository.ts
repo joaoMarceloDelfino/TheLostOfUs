@@ -11,14 +11,28 @@ import { PostDTO } from "@/src/dto/post";
 
 class PostRepository {
     async create(data: PostDTO): Promise<posts> {
-        return prismaClient.posts.create({
-            data: {
-                id: randomUUID(),
-                pet_name: data.petName,
-                user_sub: data.userSub,
-                description: data.description,
-                last_seen_date: data.lastSeenDate ?? null,
-            },
+        return prismaClient.$transaction(async (tx) => {
+            const createdPost = await tx.posts.create({
+                data: {
+                    id: randomUUID(),
+                    pet_name: data.petName,
+                    user_sub: data.userSub,
+                    description: data.description,
+                    last_seen_date: data.lastSeenDate ?? null,
+                },
+            });
+
+            if (data.imageUris && data.imageUris.length > 0) {
+                await tx.petimages.createMany({
+                    data: data.imageUris.map((uri) => ({
+                        id: randomUUID(),
+                        post_id: createdPost.id,
+                        image_uri: uri,
+                    })),
+                });
+            }
+
+            return createdPost;
         });
     }
 

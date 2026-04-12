@@ -1,7 +1,10 @@
 import PostRepository from "@/repositories/PostRepository";
 import { posts } from "@/src/generated/prisma/browser";
+import { promises as fs } from "fs";
+import path from "path";
+import { randomUUID } from "crypto";
 
-import { CreatePostSchema, parseCreatePostBodyWithZod } from "@/schemas/createPost.schema";
+import { parseCreatePostBodyWithZod } from "@/schemas/createPost.schema";
 import { parseUpdatePostBodyWithZod, UpdatePostSchema } from "@/schemas/updatePost.schema";
 import { PostDTO } from "@/src/dto/post";
 
@@ -13,6 +16,38 @@ export class PostValidationError extends Error {
 }
 
 class PostService {
+    private getFileExtension(file: File): string {
+        const fromName = file.name.split(".").pop()?.toLowerCase();
+        if (fromName) {
+            return fromName;
+        }
+
+        const fromType = file.type.split("/").pop()?.toLowerCase();
+        return fromType || "bin";
+    }
+
+    private async saveImages(files: File[]): Promise<string[]> {
+        if (!files.length) {
+            return [];
+        }
+
+        const imagesDir = path.join(process.cwd(), "public", "images");
+        await fs.mkdir(imagesDir, { recursive: true });
+
+        const imageUris: string[] = [];
+        for (const file of files) {
+            const ext = this.getFileExtension(file);
+            const filename = `${Date.now()}-${randomUUID()}.${ext}`;
+            const filePath = path.join(imagesDir, filename);
+            const buffer = Buffer.from(await file.arrayBuffer());
+
+            await fs.writeFile(filePath, buffer);
+            imageUris.push(`/images/${filename}`);
+        }
+
+        return imageUris;
+    }
+
     async createPost(data: unknown, userSub: string): Promise<posts> {
         let parsedData;
 
@@ -25,11 +60,14 @@ class PostService {
             throw new PostValidationError(err?.message || "Invalid request body.");
         }
 
+        const imageUris = await this.saveImages(parsedData.images ?? []);
+
         const input: PostDTO = {
             petName: parsedData.petName.trim(),
             userSub: userSub,
             description: parsedData.description ?? null,
             lastSeenDate: parsedData.lastSeenDate,
+            imageUris,
         };
 
         return PostRepository.create(input);

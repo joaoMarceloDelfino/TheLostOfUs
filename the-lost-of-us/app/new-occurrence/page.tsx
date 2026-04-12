@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { useAuth } from "@clerk/nextjs";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -10,27 +10,46 @@ import { createPostSchema } from "@/schemas/createPost.schema";
 import HomeHeader from "@/app/components/home/HomeHeader";
 import HomeFooter from "@/app/components/home/HomeFooter";
 import styles from "../home/page.module.css";
+import { ArrowUpTrayIcon } from '@heroicons/react/24/solid'
+
+
+type CreatePostFormInput = z.input<typeof createPostSchema>;
+type CreatePostFormOutput = z.output<typeof createPostSchema>;
 
 export default function NewOccurrencePage() {
     const { getToken, isSignedIn } = useAuth();
     const [serverError, setServerError] = useState("");
     const [success, setSuccess] = useState(false);
+    const fileInputRef = React.useRef<HTMLInputElement | null>(null);
 
     const {
         register,
         handleSubmit,
         reset,
+        watch,
         formState: { errors, isSubmitting },
-    } = useForm<z.infer<typeof createPostSchema>>({
+    } = useForm<CreatePostFormInput, unknown, CreatePostFormOutput>({
         resolver: zodResolver(createPostSchema),
         defaultValues: {
             petName: "",
             description: "",
             lastSeenDate: null,
+            images: [],
         },
     });
 
-    const onSubmit = async (data: z.infer<typeof createPostSchema>) => {
+    const {
+        ref: registerImagesRef,
+        onChange: onImagesChange,
+        name: imagesName,
+        ...imagesInputProps
+    } = register("images");
+    const selectedImages = watch("images") as File[] | FileList | undefined;
+    const selectedImagesCount = Array.isArray(selectedImages)
+        ? selectedImages.length
+        : selectedImages?.length ?? 0;
+
+    const onSubmit = async (data: CreatePostFormOutput) => {
         setServerError("");
         setSuccess(false);
         try {
@@ -129,6 +148,51 @@ export default function NewOccurrencePage() {
                                 />
                                 {errors.lastSeenDate && (
                                     <span style={{ color: "#e57373", fontSize: 13, marginTop: 4, display: "block" }}>{errors.lastSeenDate.message}</span>
+                                )}
+                            </div>
+                            <div style={{ marginBottom: 28 }}>
+                                <label style={{ display: "block", fontWeight: 600, marginBottom: 8, color: "#222" }}>Imagens*</label>
+                                <input
+                                    type="file"
+                                    {...imagesInputProps}
+                                    name={imagesName}
+                                    onChange={onImagesChange}
+                                    ref={(el) => {
+                                        registerImagesRef(el);
+                                        fileInputRef.current = el;
+                                    }}
+                                    multiple
+                                    style={{
+                                        display: "none"
+                                    }}
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => fileInputRef.current?.click()}
+                                    style={{
+                                        width: "100%",
+                                        border: "1px dashed #5a98eb",
+                                        background: "#f5f9ff",
+                                        color: "#2a5ea8",
+                                        borderRadius: 8,
+                                        padding: "12px 14px",
+                                        fontWeight: 600,
+                                        fontSize: 15,
+                                        cursor: "pointer"
+                                    }}
+                                >
+                                    <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+                                        <ArrowUpTrayIcon style={{ width: 18, height: 18, flexShrink: 0 }} />
+                                        <p style={{ margin: 0 }}>Selecionar imagens</p>
+                                    </span>
+                                </button>
+                                <div style={{ color: "#5f6b7a", fontSize: 13, marginTop: 8 }}>
+                                    {selectedImagesCount > 0
+                                        ? `${selectedImagesCount} imagem(ns) selecionada(s)`
+                                        : "Nenhuma imagem selecionada"}
+                                </div>
+                                {errors.images && (
+                                    <span style={{ color: "#e57373", fontSize: 13, marginTop: 4, display: "block" }}>{errors.images.message}</span>
                                 )}
                             </div>
                             {serverError && <div style={{ color: "#e57373", fontSize: 14, textAlign: "center", fontWeight: 500, marginBottom: 12 }}>{serverError}</div>}
