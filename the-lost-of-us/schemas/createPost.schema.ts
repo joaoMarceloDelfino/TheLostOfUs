@@ -16,7 +16,13 @@ export const createPostSchema = z.object({
             }
             return value;
         },
-        z.array(z.instanceof(File, { message: "Each image must be a valid file." }))
+        z.array(
+            z.instanceof(File, { message: "Each image must be a valid file." })
+                .refine(
+                    (file) => file.type.startsWith("image/"),
+                    "Each image must be a valid image file (JPEG, PNG, WebP, GIF)."
+                )
+        )
     )
 });
 

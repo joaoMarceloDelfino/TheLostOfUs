@@ -77,8 +77,19 @@ export async function createPost(data: any, token?: string) {
 }
 
 export async function updatePost(id: string, data: any, token?: string) {
+    const isFormData = typeof FormData !== "undefined" && data instanceof FormData;
+    if (isFormData) {
+        const response = await axios.put(`/api/post?id=${id}`, data, {
+            headers: authHeader(token),
+        });
+        return response.data;
+    }
+
     const response = await api.put(`/post?id=${id}`, data, {
-        headers: authHeader(token),
+        headers: {
+            ...authHeader(token),
+            "Content-Type": "application/json",
+        },
     });
     return response.data;
 }

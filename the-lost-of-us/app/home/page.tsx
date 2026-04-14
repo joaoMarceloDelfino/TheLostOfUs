@@ -80,17 +80,21 @@ export default function HomePage() {
             ) : posts.length === 0 ? (
               <div>Nenhum post encontrado.</div>
             ) : (
-              posts.map((post, index) => (
-                <SightingCard
-                  key={post.id || index}
-                  imageSrc={"/images/animal-1.png"}
-                  imageAlt={""}
-                  name={post.pet_name || "Sem nome"}
-                  location={"Local: Local não informado"}
-                  date={post.last_seen_date ? `Data último avistamento: ${new Date(post.last_seen_date).toLocaleDateString()}` : "Data não informada"}
-                  status={"Ativo"}
-                />
-              ))
+              posts.map((post: any, index) => {
+                const imageUris = post.petimages?.map((img: any) => img.image_uri) || ["/images/animal-1.png"];
+                return (
+                  <SightingCard
+                    key={post.id || index}
+                    imageSrc={imageUris.length > 0 ? imageUris : "/images/animal-1.png"}
+                    imageAlt={post.pet_name || "Animal avistado"}
+                    name={post.pet_name || "Sem nome"}
+                    description={post.description || "Sem descrição"}
+                    location={"Local: Local não informado"}
+                    date={post.last_seen_date ? `Data último avistamento: ${new Date(post.last_seen_date).toLocaleDateString()}` : "Data não informada"}
+                    status={"Ativo"}
+                  />
+                );
+              })
             )}
           </div>
         </section>

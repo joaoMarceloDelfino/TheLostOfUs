@@ -31,7 +31,7 @@ class PostService {
             return [];
         }
 
-        const imagesDir = path.join(process.cwd(), "public", "images");
+        const imagesDir = path.join(process.cwd(), "public", "images", "post-images");
         await fs.mkdir(imagesDir, { recursive: true });
 
         const imageUris: string[] = [];
@@ -42,10 +42,26 @@ class PostService {
             const buffer = Buffer.from(await file.arrayBuffer());
 
             await fs.writeFile(filePath, buffer);
-            imageUris.push(`/images/${filename}`);
+            imageUris.push(`/images/post-images/${filename}`);
         }
 
         return imageUris;
+    }
+
+    private async deleteImages(imageUris: string[]): Promise<void> {
+        const deletions = imageUris
+            .filter((uri) => uri.startsWith("/images/"))
+            .map(async (uri) => {
+                const normalized = uri.replace(/^\/+/, "");
+                const absolutePath = path.join(process.cwd(), "public", normalized.replace(/^images\//, "images/"));
+                try {
+                    await fs.unlink(absolutePath);
+                } catch {
+                    // File may have been removed already; keep flow resilient.
+                }
+            });
+
+        await Promise.all(deletions);
     }
 
     async createPost(data: unknown, userSub: string): Promise<posts> {
@@ -95,7 +111,7 @@ class PostService {
     }
 
     async updatePost(id: string, data: unknown, userSub: string): Promise<posts | null> {
-        const post = await PostRepository.findById(id);
+        const post = await PostRepository.findByIdWithImages(id);
 
         if (!post) {
             throw new PostValidationError("Post not found");
@@ -120,7 +136,19 @@ class PostService {
             ...(parsedData.lastSeenDate !== undefined && { lastSeenDate: parsedData.lastSeenDate }),
         };
 
-        return PostRepository.update(id, input);
+        const existingImageIds = new Set(post.petimages.map((image) => image.id));
+        const keepIdsFromPayload = parsedData.imagesToKeep;
+        const keepImageIds = (keepIdsFromPayload ?? post.petimages.map((image) => image.id))
+            .filter((imageId) => existingImageIds.has(imageId));
+
+        const removedImages = post.petimages.filter((image) => !keepImageIds.includes(image.id));
+        const newImageUris = await this.saveImages(parsedData.newImages ?? []);
+
+        const updatedPost = await PostRepository.update(id, input);
+        await PostRepository.syncPostImages(id, keepImageIds, newImageUris);
+        await this.deleteImages(removedImages.map((image) => image.image_uri));
+
+        return updatedPost;
     }
 
     async findById(id: string): Promise<posts | null> {

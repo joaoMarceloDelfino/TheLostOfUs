@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import HomeHeader from "@/app/components/home/HomeHeader";
 import HomeFooter from "@/app/components/home/HomeFooter";
 import SightingCard from "@/app/components/home/SightingCard";
-import { getUserPosts, deletePost } from "@/lib/apiClient";
+import EditPostModal, { EditPostSubmitInput } from "@/app/components/history/EditPostModal";
+import { getUserPosts, deletePost, updatePost } from "@/lib/apiClient";
 import styles from "../home/page.module.css";
 
 
@@ -13,19 +14,27 @@ export default function HistoryPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [showModal, setShowModal] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
     const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
+    const [selectedPostToEdit, setSelectedPostToEdit] = useState<any>(null);
+    const [editError, setEditError] = useState("");
+    const [isSavingEdit, setIsSavingEdit] = useState(false);
+
+    const fetchUserPosts = async () => {
+        setLoading(true);
+        try {
+            const data = await getUserPosts();
+            setPosts(data);
+            setError(null);
+        } catch {
+            setError("Erro ao carregar suas ocorrências");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        setLoading(true);
-        getUserPosts()
-            .then((data) => {
-                setPosts(data);
-                setLoading(false);
-            })
-            .catch(() => {
-                setError("Erro ao carregar suas ocorrências");
-                setLoading(false);
-            });
+        fetchUserPosts();
     }, []);
 
     const handleDeleteClick = (postId: string) => {
@@ -50,6 +59,50 @@ export default function HistoryPage() {
         setSelectedPostId(null);
     };
 
+    const handleEditClick = (post: any) => {
+        setEditError("");
+        setSelectedPostToEdit(post);
+        setShowEditModal(true);
+    };
+
+    const handleCloseEdit = () => {
+        if (isSavingEdit) {
+            return;
+        }
+        setShowEditModal(false);
+        setSelectedPostToEdit(null);
+        setEditError("");
+    };
+
+    const handleSaveEdit = async (payload: EditPostSubmitInput) => {
+        if (!selectedPostToEdit?.id) {
+            return;
+        }
+
+        setIsSavingEdit(true);
+        setEditError("");
+        try {
+            const formData = new FormData();
+            formData.append("petName", payload.petName);
+            formData.append("description", payload.description ?? "");
+            formData.append("lastSeenDate", payload.lastSeenDate ?? "");
+            formData.append("imagesToKeep", payload.imagesToKeep.join(","));
+
+            payload.newImages.forEach((file) => {
+                formData.append("newImages", file);
+            });
+
+            await updatePost(selectedPostToEdit.id, formData);
+            await fetchUserPosts();
+            setShowEditModal(false);
+            setSelectedPostToEdit(null);
+        } catch (err: any) {
+            setEditError(err?.response?.data?.details || err?.response?.data?.error || "Erro ao salvar edição.");
+        } finally {
+            setIsSavingEdit(false);
+        }
+    };
+
     return (
         <>
             <HomeHeader />
@@ -65,21 +118,26 @@ export default function HistoryPage() {
                             ) : posts.length === 0 ? (
                                 <div>Nenhuma ocorrência encontrada.</div>
                             ) : (
-                                posts.map((post, index) => (
-                                    <div key={post.id || index} style={{ position: "relative" }}>
-                                        <SightingCard
-                                            imageSrc={"/images/animal-1.png"}
-                                            imageAlt={post.pet_name || "Animal avistado"}
-                                            name={post.pet_name || "Sem nome"}
-                                            location="Local: Local não informado"
-                                            date={post.last_seen_date ? `Data último avistamento: ${new Date(post.last_seen_date).toLocaleDateString()}` : "Data não informada"}
-                                            status={"Ativo"}
-                                        />
-                                        <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-                                            <button style={{ background: "#e57373", color: "#fff", border: "none", borderRadius: 4, padding: "4px 10px", cursor: "pointer" }} onClick={() => handleDeleteClick(post.id)}>Excluir</button>
+                                posts.map((post: any, index) => {
+                                    const imageUris = post.petimages?.map((img: any) => img.image_uri) || ["/images/animal-1.png"];
+                                    return (
+                                        <div key={post.id || index} style={{ position: "relative" }}>
+                                            <SightingCard
+                                                imageSrc={imageUris.length > 0 ? imageUris : "/images/animal-1.png"}
+                                                imageAlt={post.pet_name || "Animal avistado"}
+                                                name={post.pet_name || "Sem nome"}
+                                                description={post.description || "Sem descrição"}
+                                                location="Local: Local não informado"
+                                                date={post.last_seen_date ? `Data último avistamento: ${new Date(post.last_seen_date).toLocaleDateString()}` : "Data não informada"}
+                                                status={"Ativo"}
+                                            />
+                                            <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+                                                <button style={{ background: "#5a98eb", color: "#fff", border: "none", borderRadius: 4, padding: "4px 10px", cursor: "pointer" }} onClick={() => handleEditClick(post)}>Editar</button>
+                                                <button style={{ background: "#e57373", color: "#fff", border: "none", borderRadius: 4, padding: "4px 10px", cursor: "pointer" }} onClick={() => handleDeleteClick(post.id)}>Excluir</button>
+                                            </div>
                                         </div>
-                                    </div>
-                                ))
+                                    );
+                                })
                             )}
                         </div>
                     </section>
@@ -113,6 +171,15 @@ export default function HistoryPage() {
                     </div>
                 </div>
             )}
+
+            <EditPostModal
+                open={showEditModal}
+                post={selectedPostToEdit}
+                saving={isSavingEdit}
+                errorMessage={editError}
+                onClose={handleCloseEdit}
+                onSave={handleSaveEdit}
+            />
         </>
     );
 }

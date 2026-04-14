@@ -1,7 +1,6 @@
 import { posts, PrismaClient } from "@/src/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { randomUUID } from "crypto";
-import { CreatePostSchema } from "@/schemas/createPost.schema";
 
 const prismaClient = new PrismaClient({ adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }) });
 
@@ -40,17 +39,30 @@ class PostRepository {
         return prismaClient.posts.findUnique({ where: { id } });
     }
 
-    async findAll(): Promise<posts[]> {
-        return prismaClient.posts.findMany({
-            orderBy: { created_at: 'desc' },
-        });
+    async findByIdWithImages(id: string): Promise<(posts & { petimages: { id: string; image_uri: string }[] }) | null> {
+        return prismaClient.posts.findUnique({
+            where: { id },
+            include: {
+                petimages: {
+                    select: { id: true, image_uri: true },
+                },
+            },
+        }) as Promise<(posts & { petimages: { id: string; image_uri: string }[] }) | null>;
     }
 
-    async findAllByUser(userSub: string): Promise<posts[]> {
+    async findAll(): Promise<(posts & { petimages: any[] })[]> {
+        return prismaClient.posts.findMany({
+            include: { petimages: true },
+            orderBy: { created_at: 'desc' },
+        }) as Promise<(posts & { petimages: any[] })[]>;
+    }
+
+    async findAllByUser(userSub: string): Promise<(posts & { petimages: any[] })[]> {
         return prismaClient.posts.findMany({
             where: { user_sub: userSub },
+            include: { petimages: true },
             orderBy: { created_at: 'desc' },
-        });
+        }) as Promise<(posts & { petimages: any[] })[]>;
     }
 
     async update(id: string, data: UpdatePostSchema): Promise<posts | null> {
@@ -61,6 +73,33 @@ class PostRepository {
                 ...(data.description !== undefined && { description: data.description }),
                 ...(data.lastSeenDate !== undefined && { last_seen_date: data.lastSeenDate }),
             },
+        });
+    }
+
+    async syncPostImages(postId: string, keepImageIds: string[], newImageUris: string[]): Promise<void> {
+        await prismaClient.$transaction(async (tx) => {
+            if (keepImageIds.length > 0) {
+                await tx.petimages.deleteMany({
+                    where: {
+                        post_id: postId,
+                        id: { notIn: keepImageIds },
+                    },
+                });
+            } else {
+                await tx.petimages.deleteMany({
+                    where: { post_id: postId },
+                });
+            }
+
+            if (newImageUris.length > 0) {
+                await tx.petimages.createMany({
+                    data: newImageUris.map((uri) => ({
+                        id: randomUUID(),
+                        post_id: postId,
+                        image_uri: uri,
+                    })),
+                });
+            }
         });
     }
 

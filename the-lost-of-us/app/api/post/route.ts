@@ -75,7 +75,28 @@ export async function PUT(request: NextRequest) {
         return NextResponse.json({ error: "Missing post id" }, { status: 400 });
     }
 
-    const body = await request.json();
+    const contentType = request.headers.get("content-type") || "";
+    let body: unknown;
+
+    if (contentType.includes("multipart/form-data")) {
+        const formData = await request.formData();
+        const newImages = formData.getAll("newImages").filter((value): value is File => {
+            return typeof value === "object" && value !== null && "arrayBuffer" in value && "name" in value;
+        });
+        const description = formData.get("description");
+        const lastSeenDate = formData.get("lastSeenDate");
+        const imagesToKeep = formData.get("imagesToKeep");
+
+        body = {
+            petName: formData.get("petName"),
+            description: description ? String(description) : null,
+            lastSeenDate: lastSeenDate ? String(lastSeenDate) : null,
+            imagesToKeep: imagesToKeep === null ? undefined : String(imagesToKeep),
+            newImages,
+        };
+    } else {
+        body = await request.json();
+    }
 
     try {
         const post = await PostService.updatePost(id, body, userId);

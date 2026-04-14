@@ -155,6 +155,7 @@ export default function NewOccurrencePage() {
                                 <input
                                     type="file"
                                     {...imagesInputProps}
+                                    accept="image/jpeg,image/png,image/webp,image/gif,.jpg,.jpeg,.png,.webp,.gif"
                                     name={imagesName}
                                     onChange={onImagesChange}
                                     ref={(el) => {
