@@ -23,6 +23,8 @@ type SightingCardProps = {
   name: string;
   authorName?: string;
   description?: string;
+  authorName?: string;
+  description?: string;
   location: string;
   date: string;
   status: string;
@@ -172,6 +174,8 @@ export default function SightingCard({
   name,
   authorName,
   description,
+  authorName,
+  description,
   location,
   date,
   status,
@@ -295,11 +299,40 @@ export default function SightingCard({
       <div className={styles.imageWrapper}>
         <Image
           src={currentImage}
+          src={currentImage}
           alt={imageAlt}
           width={198}
           height={135}
           className={styles.image}
         />
+
+        <div className={styles.badges}>
+          <span className={styles.statusBadge}>{status}</span>
+        </div>
+
+        {hasMultipleImages && (
+          <>
+            <button
+              type="button"
+              onClick={handlePrevious}
+              className={`${styles.carouselButton} ${styles.carouselLeft}`}
+              aria-label="Imagem anterior"
+            >
+              ‹
+            </button>
+            <button
+              type="button"
+              onClick={handleNext}
+              className={`${styles.carouselButton} ${styles.carouselRight}`}
+              aria-label="Próxima imagem"
+            >
+              ›
+            </button>
+            <div className={styles.carouselCounter}>
+              {currentImageIndex + 1} / {images.length}
+            </div>
+          </>
+        )}
 
         <div className={styles.badges}>
           <span className={styles.statusBadge}>{status}</span>

@@ -1,3 +1,35 @@
+export type PostApiResponse = {
+    id: string;
+    user_sub: string;
+    pet_name: string;
+    description?: string | null;
+    last_seen_date?: string | Date | null;
+    last_seen_location_latitude?: number | null;
+    last_seen_location_longitude?: number | null;
+    last_seen_location_label?: string | null;
+    created_at: string | Date;
+    petimages?: Array<{
+        id: string;
+        post_id: string;
+        image_uri: string;
+    }>;
+    authorName?: string;
+};
+
+// --- GET USER POSTS ---
+export async function getUserPosts(token?: string): Promise<PostApiResponse[]> {
+    const response = await api.get("/post/user", {
+        headers: authHeader(token),
+    });
+    return response.data;
+}
+// --- GET POSTS ---
+export async function getPosts(token?: string): Promise<PostApiResponse[]> {
+    const response = await api.get("/post", {
+        headers: authHeader(token),
+    });
+    return response.data;
+}
 import axios from "axios";
 
 export type CommentApiResponse = {
@@ -126,7 +158,19 @@ export async function updatePost(id: string, data: any, token?: string) {
         return response.data;
     }
 
+    const isFormData = typeof FormData !== "undefined" && data instanceof FormData;
+    if (isFormData) {
+        const response = await axios.put(`/api/post?id=${id}`, data, {
+            headers: authHeader(token),
+        });
+        return response.data;
+    }
+
     const response = await api.put(`/post?id=${id}`, data, {
+        headers: {
+            ...authHeader(token),
+            "Content-Type": "application/json",
+        },
         headers: {
             ...authHeader(token),
             "Content-Type": "application/json",

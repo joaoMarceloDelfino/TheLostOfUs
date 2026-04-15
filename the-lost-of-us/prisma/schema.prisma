@@ -62,6 +62,7 @@ model petimages {
 model posts {
   id                 String                    @id @db.Uuid
   user_sub           String
+  user_sub           String
   pet_name           String
   description        String?
   last_seen_location Unsupported("geography")?
