@@ -5,18 +5,19 @@ import HomeHeader from "@/app/components/home/HomeHeader";
 import HomeFooter from "@/app/components/home/HomeFooter";
 import SightingCard from "@/app/components/home/SightingCard";
 import EditPostModal, { EditPostSubmitInput } from "@/app/components/history/EditPostModal";
-import { getUserPosts, deletePost, updatePost } from "@/lib/apiClient";
+import { getUserPosts, deletePost, updatePost, PostApiResponse } from "@/lib/apiClient";
+import { formatLocationDisplay } from "@/lib/location";
 import styles from "../home/page.module.css";
 
 
 export default function HistoryPage() {
-    const [posts, setPosts] = useState<any[]>([]);
+    const [posts, setPosts] = useState<PostApiResponse[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [showModal, setShowModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
-    const [selectedPostToEdit, setSelectedPostToEdit] = useState<any>(null);
+    const [selectedPostToEdit, setSelectedPostToEdit] = useState<PostApiResponse | null>(null);
     const [editError, setEditError] = useState("");
     const [isSavingEdit, setIsSavingEdit] = useState(false);
 
@@ -59,7 +60,7 @@ export default function HistoryPage() {
         setSelectedPostId(null);
     };
 
-    const handleEditClick = (post: any) => {
+    const handleEditClick = (post: PostApiResponse) => {
         setEditError("");
         setSelectedPostToEdit(post);
         setShowEditModal(true);
@@ -86,6 +87,8 @@ export default function HistoryPage() {
             formData.append("petName", payload.petName);
             formData.append("description", payload.description ?? "");
             formData.append("lastSeenDate", payload.lastSeenDate ?? "");
+            formData.append("lastSeenLatitude", payload.lastSeenLatitude === null ? "" : String(payload.lastSeenLatitude));
+            formData.append("lastSeenLongitude", payload.lastSeenLongitude === null ? "" : String(payload.lastSeenLongitude));
             formData.append("imagesToKeep", payload.imagesToKeep.join(","));
 
             payload.newImages.forEach((file) => {
@@ -96,8 +99,13 @@ export default function HistoryPage() {
             await fetchUserPosts();
             setShowEditModal(false);
             setSelectedPostToEdit(null);
-        } catch (err: any) {
-            setEditError(err?.response?.data?.details || err?.response?.data?.error || "Erro ao salvar edição.");
+        } catch (error: unknown) {
+            if (typeof error === "object" && error !== null && "response" in error) {
+                const response = error as { response?: { data?: { details?: string; error?: string } } };
+                setEditError(response.response?.data?.details || response.response?.data?.error || "Erro ao salvar edição.");
+            } else {
+                setEditError("Erro ao salvar edição.");
+            }
         } finally {
             setIsSavingEdit(false);
         }
@@ -118,18 +126,28 @@ export default function HistoryPage() {
                             ) : posts.length === 0 ? (
                                 <div>Nenhuma ocorrência encontrada.</div>
                             ) : (
-                                posts.map((post: any, index) => {
-                                    const imageUris = post.petimages?.map((img: any) => img.image_uri) || ["/images/animal-1.png"];
+                                posts.map((post, index) => {
+                                    const imageUris = post.petimages?.map((img) => img.image_uri) || ["/images/animal-1.png"];
+                                    const hasLocation = post.last_seen_location_latitude != null && post.last_seen_location_longitude != null;
+                                    const postLocation = hasLocation
+                                        ? {
+                                            latitude: post.last_seen_location_latitude!,
+                                            longitude: post.last_seen_location_longitude!,
+                                            label: post.last_seen_location_label ?? null,
+                                        }
+                                        : null;
                                     return (
                                         <div key={post.id || index} style={{ position: "relative" }}>
                                             <SightingCard
                                                 imageSrc={imageUris.length > 0 ? imageUris : "/images/animal-1.png"}
                                                 imageAlt={post.pet_name || "Animal avistado"}
                                                 name={post.pet_name || "Sem nome"}
+                                                authorName={post.authorName || "Autor desconhecido"}
                                                 description={post.description || "Sem descrição"}
-                                                location="Local: Local não informado"
-                                                date={post.last_seen_date ? `Data último avistamento: ${new Date(post.last_seen_date).toLocaleDateString()}` : "Data não informada"}
-                                                status={"Ativo"}
+                                                location={formatLocationDisplay(postLocation)}
+                                                date={post.last_seen_date ? new Date(post.last_seen_date).toLocaleDateString() : "Não informada"}
+                                                status={"Desaparecido"}
+                                                rawLastSeenDate={post.last_seen_date}
                                             />
                                             <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
                                                 <button style={{ background: "#5a98eb", color: "#fff", border: "none", borderRadius: 4, padding: "4px 10px", cursor: "pointer" }} onClick={() => handleEditClick(post)}>Editar</button>

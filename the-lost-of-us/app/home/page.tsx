@@ -4,7 +4,8 @@ import styles from "./page.module.css";
 import ActionCard from "@/app/components/home/ActionCard";
 import SightingCard from "@/app/components/home/SightingCard";
 import { useEffect, useState } from "react";
-import { getPosts } from "@/lib/apiClient";
+import { getPosts, PostApiResponse } from "@/lib/apiClient";
+import { formatLocationDisplay } from "@/lib/location";
 
 const actions = [
   {
@@ -34,7 +35,7 @@ const actions = [
 
 
 export default function HomePage() {
-  const [posts, setPosts] = useState<any[]>([]);
+  const [posts, setPosts] = useState<PostApiResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -45,7 +46,7 @@ export default function HomePage() {
         setPosts(data);
         setLoading(false);
       })
-      .catch((err) => {
+      .catch(() => {
         setError("Erro ao carregar posts");
         setLoading(false);
       });
@@ -80,18 +81,28 @@ export default function HomePage() {
             ) : posts.length === 0 ? (
               <div>Nenhum post encontrado.</div>
             ) : (
-              posts.map((post: any, index) => {
-                const imageUris = post.petimages?.map((img: any) => img.image_uri) || ["/images/animal-1.png"];
+              posts.map((post, index) => {
+                const imageUris = post.petimages?.map((img) => img.image_uri) || ["/images/animal-1.png"];
+                const hasLocation = post.last_seen_location_latitude != null && post.last_seen_location_longitude != null;
+                const postLocation = hasLocation
+                  ? {
+                      latitude: post.last_seen_location_latitude!,
+                      longitude: post.last_seen_location_longitude!,
+                      label: post.last_seen_location_label ?? null,
+                    }
+                  : null;
                 return (
                   <SightingCard
                     key={post.id || index}
                     imageSrc={imageUris.length > 0 ? imageUris : "/images/animal-1.png"}
                     imageAlt={post.pet_name || "Animal avistado"}
                     name={post.pet_name || "Sem nome"}
+                    authorName={post.authorName || "Autor desconhecido"}
                     description={post.description || "Sem descrição"}
-                    location={"Local: Local não informado"}
-                    date={post.last_seen_date ? `Data último avistamento: ${new Date(post.last_seen_date).toLocaleDateString()}` : "Data não informada"}
-                    status={"Ativo"}
+                    location={formatLocationDisplay(postLocation)}
+                    date={post.last_seen_date ? new Date(post.last_seen_date).toLocaleDateString() : "Não informada"}
+                    status={"Desaparecido"}
+                    rawLastSeenDate={post.last_seen_date}
                   />
                 );
               })

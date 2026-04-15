@@ -15,6 +15,8 @@ export const updatePostSchema = z.object({
       z.null(),
     ])
     .optional(),
+  lastSeenLatitude: z.number({ message: "Invalid lastSeenLatitude." }).nullable().optional(),
+  lastSeenLongitude: z.number({ message: "Invalid lastSeenLongitude." }).nullable().optional(),
   imagesToKeep: z
     .preprocess((value) => {
       if (value === undefined || value === null) {
@@ -46,12 +48,15 @@ export const updatePostSchema = z.object({
     data.petName !== undefined ||
     data.description !== undefined ||
     data.lastSeenDate !== undefined ||
+    data.lastSeenLatitude !== undefined ||
+    data.lastSeenLongitude !== undefined ||
     data.imagesToKeep !== undefined ||
     data.newImages !== undefined,
   {
     message: "At least one field must be provided for update.",
   }
 );
+
 
 export type UpdatePostSchema = z.infer<typeof updatePostSchema>;
 

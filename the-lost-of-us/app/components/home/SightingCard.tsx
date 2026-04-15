@@ -6,16 +6,19 @@ type SightingCardProps = {
   imageSrc: string | string[];
   imageAlt: string;
   name: string;
+  authorName?: string;
   description?: string;
   location: string;
   date: string;
   status: string;
+  rawLastSeenDate?: string | Date | null;
 };
 
 export default function SightingCard({
   imageSrc,
   imageAlt,
   name,
+  authorName,
   description,
   location,
   date,
@@ -36,7 +39,7 @@ export default function SightingCard({
 
   return (
     <article className={styles.card}>
-      <div className={styles.imageWrapper} style={{ position: "relative" }}>
+      <div className={styles.imageWrapper}>
         <Image
           src={currentImage}
           alt={imageAlt}
@@ -44,88 +47,58 @@ export default function SightingCard({
           height={135}
           className={styles.image}
         />
+
+        <div className={styles.badges}>
+          <span className={styles.statusBadge}>{status}</span>
+        </div>
+
         {hasMultipleImages && (
           <>
             <button
               type="button"
               onClick={handlePrevious}
-              style={{
-                position: "absolute",
-                left: 0,
-                top: "50%",
-                transform: "translateY(-50%)",
-                background: "rgba(0, 0, 0, 0.5)",
-                color: "#fff",
-                border: "none",
-                width: 24,
-                height: 24,
-                borderRadius: "50%",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 14,
-                fontWeight: "bold"
-              }}
+              className={`${styles.carouselButton} ${styles.carouselLeft}`}
+              aria-label="Imagem anterior"
             >
               ‹
             </button>
             <button
               type="button"
               onClick={handleNext}
-              style={{
-                position: "absolute",
-                right: 0,
-                top: "50%",
-                transform: "translateY(-50%)",
-                background: "rgba(0, 0, 0, 0.5)",
-                color: "#fff",
-                border: "none",
-                width: 24,
-                height: 24,
-                borderRadius: "50%",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 14,
-                fontWeight: "bold"
-              }}
+              className={`${styles.carouselButton} ${styles.carouselRight}`}
+              aria-label="Próxima imagem"
             >
               ›
             </button>
-            <div
-              style={{
-                position: "absolute",
-                bottom: 8,
-                left: "50%",
-                transform: "translateX(-50%)",
-                background: "rgba(0, 0, 0, 0.6)",
-                color: "#fff",
-                padding: "2px 8px",
-                borderRadius: 12,
-                fontSize: 11,
-                fontWeight: "600"
-              }}
-            >
+            <div className={styles.carouselCounter}>
               {currentImageIndex + 1} / {images.length}
             </div>
           </>
         )}
       </div>
 
-      <h3 className={styles.name}>{name}</h3>
+      <header className={styles.header}>
+        <h3 className={styles.name}>{name}</h3>
+        <p className={styles.author}>Publicado por {authorName || "Autor desconhecido"}</p>
+      </header>
 
-      <div className={styles.info}>
-        {description && <p>{description}</p>}
-        <p>{location}</p>
-        <p>{date}</p>
-        <p>{status}</p>
-      </div>
+      <section className={styles.keyInfo}>
+        <div className={styles.infoItem}>
+          <span className={styles.infoLabel}>Último avistamento</span>
+          <span className={styles.infoValue}>{date}</span>
+        </div>
+        <div className={styles.infoItem}>
+          <span className={styles.infoLabel}>Localização</span>
+          <span className={styles.infoValue}>{location}</span>
+        </div>
+      </section>
 
-      {/* <button type="button" className={styles.button} >
-        Saiba mais
-      </button> */}
+      {description && (
+        <p className={styles.description}>{description}</p>
+      )}
+
+      <p className={styles.footerHint}>Compartilhe esta ocorrência para ampliar a busca.</p>
+
     </article>
   );
 }

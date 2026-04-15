@@ -3,10 +3,12 @@ import { posts } from "@/src/generated/prisma/browser";
 import { promises as fs } from "fs";
 import path from "path";
 import { randomUUID } from "crypto";
+import { clerkClient } from "@clerk/nextjs/server";
 
 import { parseCreatePostBodyWithZod } from "@/schemas/createPost.schema";
 import { parseUpdatePostBodyWithZod, UpdatePostSchema } from "@/schemas/updatePost.schema";
 import { PostDTO } from "@/src/dto/post";
+import { reverseGeocodeLocation } from "@/lib/location";
 
 export class PostValidationError extends Error {
     constructor(message: string) {
@@ -15,7 +17,135 @@ export class PostValidationError extends Error {
     }
 }
 
+type PostWithImages = posts & {
+    petimages: { id: string; post_id: string; image_uri: string }[];
+    last_seen_location_latitude: number | null;
+    last_seen_location_longitude: number | null;
+    last_seen_location_label?: string | null;
+};
+
+type PostWithAuthorName = PostWithImages & {
+    authorName: string;
+};
+
+type ClerkUserLike = {
+    id: string;
+    firstName?: string | null;
+    lastName?: string | null;
+    username?: string | null;
+    primaryEmailAddress?: { emailAddress?: string | null } | null;
+    emailAddresses?: Array<{ emailAddress?: string | null }>;
+};
+
 class PostService {
+    private readonly authorFallback = "Autor desconhecido";
+
+    private resolveAuthorName(user?: ClerkUserLike): string {
+        if (!user) {
+            return this.authorFallback;
+        }
+
+        const fullName = [user.firstName, user.lastName]
+            .filter((value): value is string => Boolean(value && value.trim()))
+            .join(" ")
+            .trim();
+
+        if (fullName) {
+            return fullName;
+        }
+
+        if (user.username && user.username.trim()) {
+            return user.username.trim();
+        }
+
+        const primaryEmail = user.primaryEmailAddress?.emailAddress?.trim();
+        if (primaryEmail) {
+            return primaryEmail;
+        }
+
+        const firstEmail = user.emailAddresses?.find((email) => email.emailAddress?.trim())?.emailAddress?.trim();
+        if (firstEmail) {
+            return firstEmail;
+        }
+
+        return this.authorFallback;
+    }
+
+    private async getAuthorNameMap(userSubs: string[]): Promise<Map<string, string>> {
+        const uniqueSubs = Array.from(new Set(userSubs.filter((value) => Boolean(value && value.trim()))));
+
+        if (!uniqueSubs.length) {
+            return new Map();
+        }
+
+        try {
+            const client = await clerkClient();
+            const usersResponse = await client.users.getUserList({
+                userId: uniqueSubs,
+                limit: uniqueSubs.length,
+            });
+
+            const authorMap = new Map<string, string>();
+            usersResponse.data.forEach((user) => {
+                const typedUser = user as ClerkUserLike;
+                authorMap.set(typedUser.id, this.resolveAuthorName(typedUser));
+            });
+
+            return authorMap;
+        } catch {
+            return new Map();
+        }
+    }
+
+    private async attachAuthorName(postsList: PostWithImages[]): Promise<PostWithAuthorName[]> {
+        const authorMap = await this.getAuthorNameMap(postsList.map((post) => post.user_sub));
+
+        return postsList.map((post) => ({
+            ...post,
+            authorName: authorMap.get(post.user_sub) ?? this.authorFallback,
+        }));
+    }
+
+    private async attachLocationLabel(postsList: PostWithAuthorName[]): Promise<PostWithAuthorName[]> {
+        const uniqueLocations = new Map<string, { latitude: number; longitude: number }>();
+
+        postsList.forEach((post) => {
+            if (post.last_seen_location_latitude == null || post.last_seen_location_longitude == null) {
+                return;
+            }
+
+            const cacheKey = `${post.last_seen_location_latitude.toFixed(6)},${post.last_seen_location_longitude.toFixed(6)}`;
+            if (!uniqueLocations.has(cacheKey)) {
+                uniqueLocations.set(cacheKey, {
+                    latitude: post.last_seen_location_latitude,
+                    longitude: post.last_seen_location_longitude,
+                });
+            }
+        });
+
+        const labelEntries = await Promise.all(
+            Array.from(uniqueLocations.entries()).map(async ([cacheKey, location]) => {
+                const label = await reverseGeocodeLocation(location);
+                return [cacheKey, label] as const;
+            })
+        );
+
+        const labelMap = new Map(labelEntries);
+
+        return postsList.map((post) => {
+            if (post.last_seen_location_latitude == null || post.last_seen_location_longitude == null) {
+                return post;
+            }
+
+            const cacheKey = `${post.last_seen_location_latitude.toFixed(6)},${post.last_seen_location_longitude.toFixed(6)}`;
+
+            return {
+                ...post,
+                last_seen_location_label: labelMap.get(cacheKey) ?? null,
+            };
+        });
+    }
+
     private getFileExtension(file: File): string {
         const fromName = file.name.split(".").pop()?.toLowerCase();
         if (fromName) {
@@ -76,6 +206,10 @@ class PostService {
             throw new PostValidationError(err?.message || "Invalid request body.");
         }
 
+        if (parsedData.lastSeenLatitude === undefined || parsedData.lastSeenLongitude === undefined) {
+            throw new PostValidationError("Location is required.");
+        }
+
         const imageUris = await this.saveImages(parsedData.images ?? []);
 
         const input: PostDTO = {
@@ -83,18 +217,27 @@ class PostService {
             userSub: userSub,
             description: parsedData.description ?? null,
             lastSeenDate: parsedData.lastSeenDate,
+            lastSeenLatitude: parsedData.lastSeenLatitude,
+            lastSeenLongitude: parsedData.lastSeenLongitude,
             imageUris,
         };
 
-        return PostRepository.create(input);
+        const createdPost = await PostRepository.create(input);
+        const [enrichedPost] = await this.attachAuthorName([createdPost]);
+        const [labeledPost] = await this.attachLocationLabel([enrichedPost]);
+        return labeledPost;
     }
 
-    async getAllPosts(): Promise<posts[]> {
-        return PostRepository.findAll();
+    async getAllPosts(): Promise<PostWithAuthorName[]> {
+        const postsList = await PostRepository.findAll();
+        const withAuthors = await this.attachAuthorName(postsList);
+        return this.attachLocationLabel(withAuthors);
     }
 
-    async getAllPostsByUser(userSub: string): Promise<posts[]> {
-        return PostRepository.findAllByUser(userSub);
+    async getAllPostsByUser(userSub: string): Promise<PostWithAuthorName[]> {
+        const postsList = await PostRepository.findAllByUser(userSub);
+        const withAuthors = await this.attachAuthorName(postsList);
+        return this.attachLocationLabel(withAuthors);
     }
 
     async deletePost(id: string, userSub: string): Promise<posts> {
@@ -110,7 +253,7 @@ class PostService {
         return deleted!;
     }
 
-    async updatePost(id: string, data: unknown, userSub: string): Promise<posts | null> {
+    async updatePost(id: string, data: unknown, userSub: string): Promise<PostWithAuthorName | null> {
         const post = await PostRepository.findByIdWithImages(id);
 
         if (!post) {
@@ -134,6 +277,8 @@ class PostService {
             ...(parsedData.petName !== undefined && { petName: parsedData.petName.trim() }),
             ...(parsedData.description !== undefined && { description: parsedData.description }),
             ...(parsedData.lastSeenDate !== undefined && { lastSeenDate: parsedData.lastSeenDate }),
+            ...(parsedData.lastSeenLatitude !== undefined && { lastSeenLatitude: parsedData.lastSeenLatitude }),
+            ...(parsedData.lastSeenLongitude !== undefined && { lastSeenLongitude: parsedData.lastSeenLongitude }),
         };
 
         const existingImageIds = new Set(post.petimages.map((image) => image.id));
@@ -148,7 +293,13 @@ class PostService {
         await PostRepository.syncPostImages(id, keepImageIds, newImageUris);
         await this.deleteImages(removedImages.map((image) => image.image_uri));
 
-        return updatedPost;
+        if (!updatedPost) {
+            return null;
+        }
+
+        const [enrichedPost] = await this.attachAuthorName([updatedPost]);
+        const [labeledPost] = await this.attachLocationLabel([enrichedPost]);
+        return labeledPost;
     }
 
     async findById(id: string): Promise<posts | null> {

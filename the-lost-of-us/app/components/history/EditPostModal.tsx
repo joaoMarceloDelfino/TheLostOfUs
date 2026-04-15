@@ -1,6 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import dynamic from "next/dynamic";
+import type { LocationCoordinates } from "@/lib/location";
+
+const LocationPicker = dynamic(() => import("@/app/components/location/LocationPicker"), {
+    ssr: false,
+});
 
 type PostImage = {
     id: string;
@@ -12,6 +18,8 @@ type EditablePost = {
     pet_name: string;
     description?: string | null;
     last_seen_date?: string | Date | null;
+    last_seen_location_latitude?: number | null;
+    last_seen_location_longitude?: number | null;
     petimages?: PostImage[];
 };
 
@@ -19,6 +27,8 @@ export type EditPostSubmitInput = {
     petName: string;
     description: string | null;
     lastSeenDate: string | null;
+    lastSeenLatitude: number | null;
+    lastSeenLongitude: number | null;
     imagesToKeep: string[];
     newImages: File[];
 };
@@ -43,6 +53,7 @@ export default function EditPostModal({
     const [petName, setPetName] = useState("");
     const [description, setDescription] = useState("");
     const [lastSeenDate, setLastSeenDate] = useState("");
+    const [selectedLocation, setSelectedLocation] = useState<LocationCoordinates | null>(null);
     const [existingImages, setExistingImages] = useState<PostImage[]>([]);
     const [newImages, setNewImages] = useState<File[]>([]);
     const [localError, setLocalError] = useState("");
@@ -91,6 +102,14 @@ export default function EditPostModal({
         setPetName(post.pet_name || "");
         setDescription(post.description || "");
         setLastSeenDate(formatBrazilianToInputDate(parsedDate));
+        if (post.last_seen_location_latitude !== undefined && post.last_seen_location_longitude !== undefined && post.last_seen_location_latitude !== null && post.last_seen_location_longitude !== null) {
+            setSelectedLocation({
+                latitude: post.last_seen_location_latitude,
+                longitude: post.last_seen_location_longitude,
+            });
+        } else {
+            setSelectedLocation(null);
+        }
         setExistingImages(post.petimages || []);
         setNewImages([]);
         setLocalError("");
@@ -130,6 +149,8 @@ export default function EditPostModal({
             petName: petName.trim(),
             description: description.trim() ? description.trim() : null,
             lastSeenDate: lastSeenDate || null,
+            lastSeenLatitude: selectedLocation?.latitude ?? null,
+            lastSeenLongitude: selectedLocation?.longitude ?? null,
             imagesToKeep: existingImages.map((image) => image.id),
             newImages,
         });
@@ -226,6 +247,11 @@ export default function EditPostModal({
                     <div style={{ fontSize: 12, color: "#6b7280", marginTop: 6 }}>
                         {lastSeenDate ? `Selecionado: ${formatInputDateToBrazilian(lastSeenDate)}` : "Selecione uma data"}
                     </div>
+                </div>
+
+                <div style={{ marginBottom: 20 }}>
+                    <label style={{ display: "block", fontWeight: 600, marginBottom: 8, color: "#222" }}>Localização no mapa</label>
+                    <LocationPicker value={selectedLocation} onChange={setSelectedLocation} />
                 </div>
 
                 <div style={{ marginBottom: 16 }}>

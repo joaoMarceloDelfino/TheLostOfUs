@@ -9,6 +9,8 @@ export const createPostSchema = z.object({
             z.date({ message: "Invalid lastSeenDate." }),
             z.null()
         ]),
+    lastSeenLatitude: z.number({ message: "Invalid lastSeenLatitude." }).optional(),
+    lastSeenLongitude: z.number({ message: "Invalid lastSeenLongitude." }).optional(),
     images: z.preprocess(
         (value) => {
             if (typeof FileList !== "undefined" && value instanceof FileList) {

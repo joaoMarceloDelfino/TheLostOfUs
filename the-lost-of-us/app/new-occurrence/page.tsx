@@ -11,6 +11,12 @@ import HomeHeader from "@/app/components/home/HomeHeader";
 import HomeFooter from "@/app/components/home/HomeFooter";
 import styles from "../home/page.module.css";
 import { ArrowUpTrayIcon } from '@heroicons/react/24/solid'
+import dynamic from "next/dynamic";
+import type { LocationCoordinates } from "@/lib/location";
+
+const LocationPicker = dynamic(() => import("@/app/components/location/LocationPicker"), {
+    ssr: false,
+});
 
 
 type CreatePostFormInput = z.input<typeof createPostSchema>;
@@ -20,6 +26,7 @@ export default function NewOccurrencePage() {
     const { getToken, isSignedIn } = useAuth();
     const [serverError, setServerError] = useState("");
     const [success, setSuccess] = useState(false);
+    const [selectedLocation, setSelectedLocation] = useState<LocationCoordinates | null>(null);
     const fileInputRef = React.useRef<HTMLInputElement | null>(null);
 
     const {
@@ -34,6 +41,8 @@ export default function NewOccurrencePage() {
             petName: "",
             description: "",
             lastSeenDate: null,
+            lastSeenLatitude: undefined,
+            lastSeenLongitude: undefined,
             images: [],
         },
     });
@@ -52,13 +61,32 @@ export default function NewOccurrencePage() {
     const onSubmit = async (data: CreatePostFormOutput) => {
         setServerError("");
         setSuccess(false);
+
+        if (!selectedLocation) {
+            setServerError("Selecione a localização no mapa.");
+            return;
+        }
+
         try {
             const token = await getToken();
-            await createPost(data, token || undefined);
+            await createPost(
+                {
+                    ...data,
+                    lastSeenLatitude: selectedLocation.latitude,
+                    lastSeenLongitude: selectedLocation.longitude,
+                },
+                token || undefined
+            );
             setSuccess(true);
             reset();
-        } catch (err: any) {
-            setServerError(err?.response?.data?.error || "Erro ao criar ocorrência");
+            setSelectedLocation(null);
+        } catch (error: unknown) {
+            if (typeof error === "object" && error !== null && "response" in error) {
+                const response = error as { response?: { data?: { error?: string } } };
+                setServerError(response.response?.data?.error || "Erro ao criar ocorrência");
+            } else {
+                setServerError("Erro ao criar ocorrência");
+            }
         }
     };
 
@@ -149,6 +177,10 @@ export default function NewOccurrencePage() {
                                 {errors.lastSeenDate && (
                                     <span style={{ color: "#e57373", fontSize: 13, marginTop: 4, display: "block" }}>{errors.lastSeenDate.message}</span>
                                 )}
+                            </div>
+                            <div style={{ marginBottom: 28 }}>
+                                <label style={{ display: "block", fontWeight: 600, marginBottom: 8, color: "#222" }}>Localização no mapa *</label>
+                                <LocationPicker value={selectedLocation} onChange={setSelectedLocation} />
                             </div>
                             <div style={{ marginBottom: 28 }}>
                                 <label style={{ display: "block", fontWeight: 600, marginBottom: 8, color: "#222" }}>Imagens*</label>

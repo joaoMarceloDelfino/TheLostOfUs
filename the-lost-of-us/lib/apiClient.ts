@@ -1,12 +1,30 @@
+export type PostApiResponse = {
+    id: string;
+    user_sub: string;
+    pet_name: string;
+    description?: string | null;
+    last_seen_date?: string | Date | null;
+    last_seen_location_latitude?: number | null;
+    last_seen_location_longitude?: number | null;
+    last_seen_location_label?: string | null;
+    created_at: string | Date;
+    petimages?: Array<{
+        id: string;
+        post_id: string;
+        image_uri: string;
+    }>;
+    authorName?: string;
+};
+
 // --- GET USER POSTS ---
-export async function getUserPosts(token?: string) {
+export async function getUserPosts(token?: string): Promise<PostApiResponse[]> {
     const response = await api.get("/post/user", {
         headers: authHeader(token),
     });
     return response.data;
 }
 // --- GET POSTS ---
-export async function getPosts(token?: string) {
+export async function getPosts(token?: string): Promise<PostApiResponse[]> {
     const response = await api.get("/post", {
         headers: authHeader(token),
     });
@@ -56,6 +74,14 @@ export async function createPost(data: any, token?: string) {
                 ? data.lastSeenDate
                 : new Date(data.lastSeenDate);
             formData.append("lastSeenDate", date.toISOString());
+        }
+
+        if (data?.lastSeenLatitude !== undefined && data?.lastSeenLatitude !== null) {
+            formData.append("lastSeenLatitude", String(data.lastSeenLatitude));
+        }
+
+        if (data?.lastSeenLongitude !== undefined && data?.lastSeenLongitude !== null) {
+            formData.append("lastSeenLongitude", String(data.lastSeenLongitude));
         }
 
         files.forEach((file) => formData.append("images", file));
