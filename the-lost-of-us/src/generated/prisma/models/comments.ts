@@ -20,58 +20,114 @@ export type commentsModel = runtime.Types.Result.DefaultSelection<Prisma.$commen
 
 export type AggregateComments = {
   _count: CommentsCountAggregateOutputType | null
+  _avg: CommentsAvgAggregateOutputType | null
+  _sum: CommentsSumAggregateOutputType | null
   _min: CommentsMinAggregateOutputType | null
   _max: CommentsMaxAggregateOutputType | null
+}
+
+export type CommentsAvgAggregateOutputType = {
+  likes_count: number | null
+  dislikes_count: number | null
+  reports_count: number | null
+}
+
+export type CommentsSumAggregateOutputType = {
+  likes_count: number | null
+  dislikes_count: number | null
+  reports_count: number | null
 }
 
 export type CommentsMinAggregateOutputType = {
   id: string | null
   post_id: string | null
+  parent_comment_id: string | null
   user_sub: string | null
   comment_text: string | null
+  likes_count: number | null
+  dislikes_count: number | null
+  reports_count: number | null
   created_at: Date | null
+  updated_at: Date | null
 }
 
 export type CommentsMaxAggregateOutputType = {
   id: string | null
   post_id: string | null
+  parent_comment_id: string | null
   user_sub: string | null
   comment_text: string | null
+  likes_count: number | null
+  dislikes_count: number | null
+  reports_count: number | null
   created_at: Date | null
+  updated_at: Date | null
 }
 
 export type CommentsCountAggregateOutputType = {
   id: number
   post_id: number
+  parent_comment_id: number
   user_sub: number
   comment_text: number
+  likes_count: number
+  dislikes_count: number
+  reports_count: number
   created_at: number
+  updated_at: number
   _all: number
 }
 
 
+export type CommentsAvgAggregateInputType = {
+  likes_count?: true
+  dislikes_count?: true
+  reports_count?: true
+}
+
+export type CommentsSumAggregateInputType = {
+  likes_count?: true
+  dislikes_count?: true
+  reports_count?: true
+}
+
 export type CommentsMinAggregateInputType = {
   id?: true
   post_id?: true
+  parent_comment_id?: true
   user_sub?: true
   comment_text?: true
+  likes_count?: true
+  dislikes_count?: true
+  reports_count?: true
   created_at?: true
+  updated_at?: true
 }
 
 export type CommentsMaxAggregateInputType = {
   id?: true
   post_id?: true
+  parent_comment_id?: true
   user_sub?: true
   comment_text?: true
+  likes_count?: true
+  dislikes_count?: true
+  reports_count?: true
   created_at?: true
+  updated_at?: true
 }
 
 export type CommentsCountAggregateInputType = {
   id?: true
   post_id?: true
+  parent_comment_id?: true
   user_sub?: true
   comment_text?: true
+  likes_count?: true
+  dislikes_count?: true
+  reports_count?: true
   created_at?: true
+  updated_at?: true
   _all?: true
 }
 
@@ -113,6 +169,18 @@ export type CommentsAggregateArgs<ExtArgs extends runtime.Types.Extensions.Inter
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: CommentsAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: CommentsSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: CommentsMinAggregateInputType
@@ -143,6 +211,8 @@ export type commentsGroupByArgs<ExtArgs extends runtime.Types.Extensions.Interna
   take?: number
   skip?: number
   _count?: CommentsCountAggregateInputType | true
+  _avg?: CommentsAvgAggregateInputType
+  _sum?: CommentsSumAggregateInputType
   _min?: CommentsMinAggregateInputType
   _max?: CommentsMaxAggregateInputType
 }
@@ -150,10 +220,17 @@ export type commentsGroupByArgs<ExtArgs extends runtime.Types.Extensions.Interna
 export type CommentsGroupByOutputType = {
   id: string
   post_id: string
+  parent_comment_id: string | null
   user_sub: string
   comment_text: string
+  likes_count: number
+  dislikes_count: number
+  reports_count: number
   created_at: Date
+  updated_at: Date
   _count: CommentsCountAggregateOutputType | null
+  _avg: CommentsAvgAggregateOutputType | null
+  _sum: CommentsSumAggregateOutputType | null
   _min: CommentsMinAggregateOutputType | null
   _max: CommentsMaxAggregateOutputType | null
 }
@@ -179,21 +256,37 @@ export type commentsWhereInput = {
   NOT?: Prisma.commentsWhereInput | Prisma.commentsWhereInput[]
   id?: Prisma.UuidFilter<"comments"> | string
   post_id?: Prisma.UuidFilter<"comments"> | string
-  user_sub?: Prisma.UuidFilter<"comments"> | string
+  parent_comment_id?: Prisma.UuidNullableFilter<"comments"> | string | null
+  user_sub?: Prisma.StringFilter<"comments"> | string
   comment_text?: Prisma.StringFilter<"comments"> | string
+  likes_count?: Prisma.IntFilter<"comments"> | number
+  dislikes_count?: Prisma.IntFilter<"comments"> | number
+  reports_count?: Prisma.IntFilter<"comments"> | number
   created_at?: Prisma.DateTimeFilter<"comments"> | Date | string
+  updated_at?: Prisma.DateTimeFilter<"comments"> | Date | string
   posts?: Prisma.XOR<Prisma.PostsScalarRelationFilter, Prisma.postsWhereInput>
-  users?: Prisma.XOR<Prisma.UsersScalarRelationFilter, Prisma.usersWhereInput>
+  parent_comment?: Prisma.XOR<Prisma.CommentsNullableScalarRelationFilter, Prisma.commentsWhereInput> | null
+  replies?: Prisma.CommentsListRelationFilter
+  comment_votes?: Prisma.Comment_votesListRelationFilter
+  comment_reports?: Prisma.Comment_reportsListRelationFilter
 }
 
 export type commentsOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   post_id?: Prisma.SortOrder
+  parent_comment_id?: Prisma.SortOrderInput | Prisma.SortOrder
   user_sub?: Prisma.SortOrder
   comment_text?: Prisma.SortOrder
+  likes_count?: Prisma.SortOrder
+  dislikes_count?: Prisma.SortOrder
+  reports_count?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
+  updated_at?: Prisma.SortOrder
   posts?: Prisma.postsOrderByWithRelationInput
-  users?: Prisma.usersOrderByWithRelationInput
+  parent_comment?: Prisma.commentsOrderByWithRelationInput
+  replies?: Prisma.commentsOrderByRelationAggregateInput
+  comment_votes?: Prisma.comment_votesOrderByRelationAggregateInput
+  comment_reports?: Prisma.comment_reportsOrderByRelationAggregateInput
 }
 
 export type commentsWhereUniqueInput = Prisma.AtLeast<{
@@ -202,22 +295,37 @@ export type commentsWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.commentsWhereInput[]
   NOT?: Prisma.commentsWhereInput | Prisma.commentsWhereInput[]
   post_id?: Prisma.UuidFilter<"comments"> | string
-  user_sub?: Prisma.UuidFilter<"comments"> | string
+  parent_comment_id?: Prisma.UuidNullableFilter<"comments"> | string | null
+  user_sub?: Prisma.StringFilter<"comments"> | string
   comment_text?: Prisma.StringFilter<"comments"> | string
+  likes_count?: Prisma.IntFilter<"comments"> | number
+  dislikes_count?: Prisma.IntFilter<"comments"> | number
+  reports_count?: Prisma.IntFilter<"comments"> | number
   created_at?: Prisma.DateTimeFilter<"comments"> | Date | string
+  updated_at?: Prisma.DateTimeFilter<"comments"> | Date | string
   posts?: Prisma.XOR<Prisma.PostsScalarRelationFilter, Prisma.postsWhereInput>
-  users?: Prisma.XOR<Prisma.UsersScalarRelationFilter, Prisma.usersWhereInput>
+  parent_comment?: Prisma.XOR<Prisma.CommentsNullableScalarRelationFilter, Prisma.commentsWhereInput> | null
+  replies?: Prisma.CommentsListRelationFilter
+  comment_votes?: Prisma.Comment_votesListRelationFilter
+  comment_reports?: Prisma.Comment_reportsListRelationFilter
 }, "id">
 
 export type commentsOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   post_id?: Prisma.SortOrder
+  parent_comment_id?: Prisma.SortOrderInput | Prisma.SortOrder
   user_sub?: Prisma.SortOrder
   comment_text?: Prisma.SortOrder
+  likes_count?: Prisma.SortOrder
+  dislikes_count?: Prisma.SortOrder
+  reports_count?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
+  updated_at?: Prisma.SortOrder
   _count?: Prisma.commentsCountOrderByAggregateInput
+  _avg?: Prisma.commentsAvgOrderByAggregateInput
   _max?: Prisma.commentsMaxOrderByAggregateInput
   _min?: Prisma.commentsMinOrderByAggregateInput
+  _sum?: Prisma.commentsSumOrderByAggregateInput
 }
 
 export type commentsScalarWhereWithAggregatesInput = {
@@ -226,87 +334,120 @@ export type commentsScalarWhereWithAggregatesInput = {
   NOT?: Prisma.commentsScalarWhereWithAggregatesInput | Prisma.commentsScalarWhereWithAggregatesInput[]
   id?: Prisma.UuidWithAggregatesFilter<"comments"> | string
   post_id?: Prisma.UuidWithAggregatesFilter<"comments"> | string
-  user_sub?: Prisma.UuidWithAggregatesFilter<"comments"> | string
+  parent_comment_id?: Prisma.UuidNullableWithAggregatesFilter<"comments"> | string | null
+  user_sub?: Prisma.StringWithAggregatesFilter<"comments"> | string
   comment_text?: Prisma.StringWithAggregatesFilter<"comments"> | string
+  likes_count?: Prisma.IntWithAggregatesFilter<"comments"> | number
+  dislikes_count?: Prisma.IntWithAggregatesFilter<"comments"> | number
+  reports_count?: Prisma.IntWithAggregatesFilter<"comments"> | number
   created_at?: Prisma.DateTimeWithAggregatesFilter<"comments"> | Date | string
+  updated_at?: Prisma.DateTimeWithAggregatesFilter<"comments"> | Date | string
 }
 
 export type commentsCreateInput = {
-  id: string
+  id?: string
+  user_sub: string
   comment_text: string
+  likes_count?: number
+  dislikes_count?: number
+  reports_count?: number
   created_at?: Date | string
+  updated_at?: Date | string
   posts: Prisma.postsCreateNestedOneWithoutCommentsInput
-  users: Prisma.usersCreateNestedOneWithoutCommentsInput
+  parent_comment?: Prisma.commentsCreateNestedOneWithoutRepliesInput
+  replies?: Prisma.commentsCreateNestedManyWithoutParent_commentInput
+  comment_votes?: Prisma.comment_votesCreateNestedManyWithoutCommentsInput
+  comment_reports?: Prisma.comment_reportsCreateNestedManyWithoutCommentsInput
 }
 
 export type commentsUncheckedCreateInput = {
-  id: string
+  id?: string
   post_id: string
+  parent_comment_id?: string | null
   user_sub: string
   comment_text: string
+  likes_count?: number
+  dislikes_count?: number
+  reports_count?: number
   created_at?: Date | string
+  updated_at?: Date | string
+  replies?: Prisma.commentsUncheckedCreateNestedManyWithoutParent_commentInput
+  comment_votes?: Prisma.comment_votesUncheckedCreateNestedManyWithoutCommentsInput
+  comment_reports?: Prisma.comment_reportsUncheckedCreateNestedManyWithoutCommentsInput
 }
 
 export type commentsUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  user_sub?: Prisma.StringFieldUpdateOperationsInput | string
   comment_text?: Prisma.StringFieldUpdateOperationsInput | string
+  likes_count?: Prisma.IntFieldUpdateOperationsInput | number
+  dislikes_count?: Prisma.IntFieldUpdateOperationsInput | number
+  reports_count?: Prisma.IntFieldUpdateOperationsInput | number
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   posts?: Prisma.postsUpdateOneRequiredWithoutCommentsNestedInput
-  users?: Prisma.usersUpdateOneRequiredWithoutCommentsNestedInput
+  parent_comment?: Prisma.commentsUpdateOneWithoutRepliesNestedInput
+  replies?: Prisma.commentsUpdateManyWithoutParent_commentNestedInput
+  comment_votes?: Prisma.comment_votesUpdateManyWithoutCommentsNestedInput
+  comment_reports?: Prisma.comment_reportsUpdateManyWithoutCommentsNestedInput
 }
 
 export type commentsUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   post_id?: Prisma.StringFieldUpdateOperationsInput | string
+  parent_comment_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   user_sub?: Prisma.StringFieldUpdateOperationsInput | string
   comment_text?: Prisma.StringFieldUpdateOperationsInput | string
+  likes_count?: Prisma.IntFieldUpdateOperationsInput | number
+  dislikes_count?: Prisma.IntFieldUpdateOperationsInput | number
+  reports_count?: Prisma.IntFieldUpdateOperationsInput | number
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  replies?: Prisma.commentsUncheckedUpdateManyWithoutParent_commentNestedInput
+  comment_votes?: Prisma.comment_votesUncheckedUpdateManyWithoutCommentsNestedInput
+  comment_reports?: Prisma.comment_reportsUncheckedUpdateManyWithoutCommentsNestedInput
 }
 
 export type commentsCreateManyInput = {
-  id: string
+  id?: string
   post_id: string
+  parent_comment_id?: string | null
   user_sub: string
   comment_text: string
+  likes_count?: number
+  dislikes_count?: number
+  reports_count?: number
   created_at?: Date | string
+  updated_at?: Date | string
 }
 
 export type commentsUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  user_sub?: Prisma.StringFieldUpdateOperationsInput | string
   comment_text?: Prisma.StringFieldUpdateOperationsInput | string
+  likes_count?: Prisma.IntFieldUpdateOperationsInput | number
+  dislikes_count?: Prisma.IntFieldUpdateOperationsInput | number
+  reports_count?: Prisma.IntFieldUpdateOperationsInput | number
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type commentsUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   post_id?: Prisma.StringFieldUpdateOperationsInput | string
+  parent_comment_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   user_sub?: Prisma.StringFieldUpdateOperationsInput | string
   comment_text?: Prisma.StringFieldUpdateOperationsInput | string
+  likes_count?: Prisma.IntFieldUpdateOperationsInput | number
+  dislikes_count?: Prisma.IntFieldUpdateOperationsInput | number
+  reports_count?: Prisma.IntFieldUpdateOperationsInput | number
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type commentsCountOrderByAggregateInput = {
-  id?: Prisma.SortOrder
-  post_id?: Prisma.SortOrder
-  user_sub?: Prisma.SortOrder
-  comment_text?: Prisma.SortOrder
-  created_at?: Prisma.SortOrder
-}
-
-export type commentsMaxOrderByAggregateInput = {
-  id?: Prisma.SortOrder
-  post_id?: Prisma.SortOrder
-  user_sub?: Prisma.SortOrder
-  comment_text?: Prisma.SortOrder
-  created_at?: Prisma.SortOrder
-}
-
-export type commentsMinOrderByAggregateInput = {
-  id?: Prisma.SortOrder
-  post_id?: Prisma.SortOrder
-  user_sub?: Prisma.SortOrder
-  comment_text?: Prisma.SortOrder
-  created_at?: Prisma.SortOrder
+export type CommentsNullableScalarRelationFilter = {
+  is?: Prisma.commentsWhereInput | null
+  isNot?: Prisma.commentsWhereInput | null
 }
 
 export type CommentsListRelationFilter = {
@@ -319,12 +460,166 @@ export type commentsOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
+export type commentsCountOrderByAggregateInput = {
+  id?: Prisma.SortOrder
+  post_id?: Prisma.SortOrder
+  parent_comment_id?: Prisma.SortOrder
+  user_sub?: Prisma.SortOrder
+  comment_text?: Prisma.SortOrder
+  likes_count?: Prisma.SortOrder
+  dislikes_count?: Prisma.SortOrder
+  reports_count?: Prisma.SortOrder
+  created_at?: Prisma.SortOrder
+  updated_at?: Prisma.SortOrder
+}
+
+export type commentsAvgOrderByAggregateInput = {
+  likes_count?: Prisma.SortOrder
+  dislikes_count?: Prisma.SortOrder
+  reports_count?: Prisma.SortOrder
+}
+
+export type commentsMaxOrderByAggregateInput = {
+  id?: Prisma.SortOrder
+  post_id?: Prisma.SortOrder
+  parent_comment_id?: Prisma.SortOrder
+  user_sub?: Prisma.SortOrder
+  comment_text?: Prisma.SortOrder
+  likes_count?: Prisma.SortOrder
+  dislikes_count?: Prisma.SortOrder
+  reports_count?: Prisma.SortOrder
+  created_at?: Prisma.SortOrder
+  updated_at?: Prisma.SortOrder
+}
+
+export type commentsMinOrderByAggregateInput = {
+  id?: Prisma.SortOrder
+  post_id?: Prisma.SortOrder
+  parent_comment_id?: Prisma.SortOrder
+  user_sub?: Prisma.SortOrder
+  comment_text?: Prisma.SortOrder
+  likes_count?: Prisma.SortOrder
+  dislikes_count?: Prisma.SortOrder
+  reports_count?: Prisma.SortOrder
+  created_at?: Prisma.SortOrder
+  updated_at?: Prisma.SortOrder
+}
+
+export type commentsSumOrderByAggregateInput = {
+  likes_count?: Prisma.SortOrder
+  dislikes_count?: Prisma.SortOrder
+  reports_count?: Prisma.SortOrder
+}
+
+export type CommentsScalarRelationFilter = {
+  is?: Prisma.commentsWhereInput
+  isNot?: Prisma.commentsWhereInput
+}
+
+export type commentsCreateNestedOneWithoutRepliesInput = {
+  create?: Prisma.XOR<Prisma.commentsCreateWithoutRepliesInput, Prisma.commentsUncheckedCreateWithoutRepliesInput>
+  connectOrCreate?: Prisma.commentsCreateOrConnectWithoutRepliesInput
+  connect?: Prisma.commentsWhereUniqueInput
+}
+
+export type commentsCreateNestedManyWithoutParent_commentInput = {
+  create?: Prisma.XOR<Prisma.commentsCreateWithoutParent_commentInput, Prisma.commentsUncheckedCreateWithoutParent_commentInput> | Prisma.commentsCreateWithoutParent_commentInput[] | Prisma.commentsUncheckedCreateWithoutParent_commentInput[]
+  connectOrCreate?: Prisma.commentsCreateOrConnectWithoutParent_commentInput | Prisma.commentsCreateOrConnectWithoutParent_commentInput[]
+  createMany?: Prisma.commentsCreateManyParent_commentInputEnvelope
+  connect?: Prisma.commentsWhereUniqueInput | Prisma.commentsWhereUniqueInput[]
+}
+
+export type commentsUncheckedCreateNestedManyWithoutParent_commentInput = {
+  create?: Prisma.XOR<Prisma.commentsCreateWithoutParent_commentInput, Prisma.commentsUncheckedCreateWithoutParent_commentInput> | Prisma.commentsCreateWithoutParent_commentInput[] | Prisma.commentsUncheckedCreateWithoutParent_commentInput[]
+  connectOrCreate?: Prisma.commentsCreateOrConnectWithoutParent_commentInput | Prisma.commentsCreateOrConnectWithoutParent_commentInput[]
+  createMany?: Prisma.commentsCreateManyParent_commentInputEnvelope
+  connect?: Prisma.commentsWhereUniqueInput | Prisma.commentsWhereUniqueInput[]
+}
+
 export type StringFieldUpdateOperationsInput = {
   set?: string
 }
 
+export type IntFieldUpdateOperationsInput = {
+  set?: number
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
+}
+
 export type DateTimeFieldUpdateOperationsInput = {
   set?: Date | string
+}
+
+export type commentsUpdateOneWithoutRepliesNestedInput = {
+  create?: Prisma.XOR<Prisma.commentsCreateWithoutRepliesInput, Prisma.commentsUncheckedCreateWithoutRepliesInput>
+  connectOrCreate?: Prisma.commentsCreateOrConnectWithoutRepliesInput
+  upsert?: Prisma.commentsUpsertWithoutRepliesInput
+  disconnect?: Prisma.commentsWhereInput | boolean
+  delete?: Prisma.commentsWhereInput | boolean
+  connect?: Prisma.commentsWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.commentsUpdateToOneWithWhereWithoutRepliesInput, Prisma.commentsUpdateWithoutRepliesInput>, Prisma.commentsUncheckedUpdateWithoutRepliesInput>
+}
+
+export type commentsUpdateManyWithoutParent_commentNestedInput = {
+  create?: Prisma.XOR<Prisma.commentsCreateWithoutParent_commentInput, Prisma.commentsUncheckedCreateWithoutParent_commentInput> | Prisma.commentsCreateWithoutParent_commentInput[] | Prisma.commentsUncheckedCreateWithoutParent_commentInput[]
+  connectOrCreate?: Prisma.commentsCreateOrConnectWithoutParent_commentInput | Prisma.commentsCreateOrConnectWithoutParent_commentInput[]
+  upsert?: Prisma.commentsUpsertWithWhereUniqueWithoutParent_commentInput | Prisma.commentsUpsertWithWhereUniqueWithoutParent_commentInput[]
+  createMany?: Prisma.commentsCreateManyParent_commentInputEnvelope
+  set?: Prisma.commentsWhereUniqueInput | Prisma.commentsWhereUniqueInput[]
+  disconnect?: Prisma.commentsWhereUniqueInput | Prisma.commentsWhereUniqueInput[]
+  delete?: Prisma.commentsWhereUniqueInput | Prisma.commentsWhereUniqueInput[]
+  connect?: Prisma.commentsWhereUniqueInput | Prisma.commentsWhereUniqueInput[]
+  update?: Prisma.commentsUpdateWithWhereUniqueWithoutParent_commentInput | Prisma.commentsUpdateWithWhereUniqueWithoutParent_commentInput[]
+  updateMany?: Prisma.commentsUpdateManyWithWhereWithoutParent_commentInput | Prisma.commentsUpdateManyWithWhereWithoutParent_commentInput[]
+  deleteMany?: Prisma.commentsScalarWhereInput | Prisma.commentsScalarWhereInput[]
+}
+
+export type NullableStringFieldUpdateOperationsInput = {
+  set?: string | null
+}
+
+export type commentsUncheckedUpdateManyWithoutParent_commentNestedInput = {
+  create?: Prisma.XOR<Prisma.commentsCreateWithoutParent_commentInput, Prisma.commentsUncheckedCreateWithoutParent_commentInput> | Prisma.commentsCreateWithoutParent_commentInput[] | Prisma.commentsUncheckedCreateWithoutParent_commentInput[]
+  connectOrCreate?: Prisma.commentsCreateOrConnectWithoutParent_commentInput | Prisma.commentsCreateOrConnectWithoutParent_commentInput[]
+  upsert?: Prisma.commentsUpsertWithWhereUniqueWithoutParent_commentInput | Prisma.commentsUpsertWithWhereUniqueWithoutParent_commentInput[]
+  createMany?: Prisma.commentsCreateManyParent_commentInputEnvelope
+  set?: Prisma.commentsWhereUniqueInput | Prisma.commentsWhereUniqueInput[]
+  disconnect?: Prisma.commentsWhereUniqueInput | Prisma.commentsWhereUniqueInput[]
+  delete?: Prisma.commentsWhereUniqueInput | Prisma.commentsWhereUniqueInput[]
+  connect?: Prisma.commentsWhereUniqueInput | Prisma.commentsWhereUniqueInput[]
+  update?: Prisma.commentsUpdateWithWhereUniqueWithoutParent_commentInput | Prisma.commentsUpdateWithWhereUniqueWithoutParent_commentInput[]
+  updateMany?: Prisma.commentsUpdateManyWithWhereWithoutParent_commentInput | Prisma.commentsUpdateManyWithWhereWithoutParent_commentInput[]
+  deleteMany?: Prisma.commentsScalarWhereInput | Prisma.commentsScalarWhereInput[]
+}
+
+export type commentsCreateNestedOneWithoutComment_votesInput = {
+  create?: Prisma.XOR<Prisma.commentsCreateWithoutComment_votesInput, Prisma.commentsUncheckedCreateWithoutComment_votesInput>
+  connectOrCreate?: Prisma.commentsCreateOrConnectWithoutComment_votesInput
+  connect?: Prisma.commentsWhereUniqueInput
+}
+
+export type commentsUpdateOneRequiredWithoutComment_votesNestedInput = {
+  create?: Prisma.XOR<Prisma.commentsCreateWithoutComment_votesInput, Prisma.commentsUncheckedCreateWithoutComment_votesInput>
+  connectOrCreate?: Prisma.commentsCreateOrConnectWithoutComment_votesInput
+  upsert?: Prisma.commentsUpsertWithoutComment_votesInput
+  connect?: Prisma.commentsWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.commentsUpdateToOneWithWhereWithoutComment_votesInput, Prisma.commentsUpdateWithoutComment_votesInput>, Prisma.commentsUncheckedUpdateWithoutComment_votesInput>
+}
+
+export type commentsCreateNestedOneWithoutComment_reportsInput = {
+  create?: Prisma.XOR<Prisma.commentsCreateWithoutComment_reportsInput, Prisma.commentsUncheckedCreateWithoutComment_reportsInput>
+  connectOrCreate?: Prisma.commentsCreateOrConnectWithoutComment_reportsInput
+  connect?: Prisma.commentsWhereUniqueInput
+}
+
+export type commentsUpdateOneRequiredWithoutComment_reportsNestedInput = {
+  create?: Prisma.XOR<Prisma.commentsCreateWithoutComment_reportsInput, Prisma.commentsUncheckedCreateWithoutComment_reportsInput>
+  connectOrCreate?: Prisma.commentsCreateOrConnectWithoutComment_reportsInput
+  upsert?: Prisma.commentsUpsertWithoutComment_reportsInput
+  connect?: Prisma.commentsWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.commentsUpdateToOneWithWhereWithoutComment_reportsInput, Prisma.commentsUpdateWithoutComment_reportsInput>, Prisma.commentsUncheckedUpdateWithoutComment_reportsInput>
 }
 
 export type commentsCreateNestedManyWithoutPostsInput = {
@@ -369,60 +664,334 @@ export type commentsUncheckedUpdateManyWithoutPostsNestedInput = {
   deleteMany?: Prisma.commentsScalarWhereInput | Prisma.commentsScalarWhereInput[]
 }
 
-export type commentsCreateNestedManyWithoutUsersInput = {
-  create?: Prisma.XOR<Prisma.commentsCreateWithoutUsersInput, Prisma.commentsUncheckedCreateWithoutUsersInput> | Prisma.commentsCreateWithoutUsersInput[] | Prisma.commentsUncheckedCreateWithoutUsersInput[]
-  connectOrCreate?: Prisma.commentsCreateOrConnectWithoutUsersInput | Prisma.commentsCreateOrConnectWithoutUsersInput[]
-  createMany?: Prisma.commentsCreateManyUsersInputEnvelope
-  connect?: Prisma.commentsWhereUniqueInput | Prisma.commentsWhereUniqueInput[]
+export type commentsCreateWithoutRepliesInput = {
+  id?: string
+  user_sub: string
+  comment_text: string
+  likes_count?: number
+  dislikes_count?: number
+  reports_count?: number
+  created_at?: Date | string
+  updated_at?: Date | string
+  posts: Prisma.postsCreateNestedOneWithoutCommentsInput
+  parent_comment?: Prisma.commentsCreateNestedOneWithoutRepliesInput
+  comment_votes?: Prisma.comment_votesCreateNestedManyWithoutCommentsInput
+  comment_reports?: Prisma.comment_reportsCreateNestedManyWithoutCommentsInput
 }
 
-export type commentsUncheckedCreateNestedManyWithoutUsersInput = {
-  create?: Prisma.XOR<Prisma.commentsCreateWithoutUsersInput, Prisma.commentsUncheckedCreateWithoutUsersInput> | Prisma.commentsCreateWithoutUsersInput[] | Prisma.commentsUncheckedCreateWithoutUsersInput[]
-  connectOrCreate?: Prisma.commentsCreateOrConnectWithoutUsersInput | Prisma.commentsCreateOrConnectWithoutUsersInput[]
-  createMany?: Prisma.commentsCreateManyUsersInputEnvelope
-  connect?: Prisma.commentsWhereUniqueInput | Prisma.commentsWhereUniqueInput[]
+export type commentsUncheckedCreateWithoutRepliesInput = {
+  id?: string
+  post_id: string
+  parent_comment_id?: string | null
+  user_sub: string
+  comment_text: string
+  likes_count?: number
+  dislikes_count?: number
+  reports_count?: number
+  created_at?: Date | string
+  updated_at?: Date | string
+  comment_votes?: Prisma.comment_votesUncheckedCreateNestedManyWithoutCommentsInput
+  comment_reports?: Prisma.comment_reportsUncheckedCreateNestedManyWithoutCommentsInput
 }
 
-export type commentsUpdateManyWithoutUsersNestedInput = {
-  create?: Prisma.XOR<Prisma.commentsCreateWithoutUsersInput, Prisma.commentsUncheckedCreateWithoutUsersInput> | Prisma.commentsCreateWithoutUsersInput[] | Prisma.commentsUncheckedCreateWithoutUsersInput[]
-  connectOrCreate?: Prisma.commentsCreateOrConnectWithoutUsersInput | Prisma.commentsCreateOrConnectWithoutUsersInput[]
-  upsert?: Prisma.commentsUpsertWithWhereUniqueWithoutUsersInput | Prisma.commentsUpsertWithWhereUniqueWithoutUsersInput[]
-  createMany?: Prisma.commentsCreateManyUsersInputEnvelope
-  set?: Prisma.commentsWhereUniqueInput | Prisma.commentsWhereUniqueInput[]
-  disconnect?: Prisma.commentsWhereUniqueInput | Prisma.commentsWhereUniqueInput[]
-  delete?: Prisma.commentsWhereUniqueInput | Prisma.commentsWhereUniqueInput[]
-  connect?: Prisma.commentsWhereUniqueInput | Prisma.commentsWhereUniqueInput[]
-  update?: Prisma.commentsUpdateWithWhereUniqueWithoutUsersInput | Prisma.commentsUpdateWithWhereUniqueWithoutUsersInput[]
-  updateMany?: Prisma.commentsUpdateManyWithWhereWithoutUsersInput | Prisma.commentsUpdateManyWithWhereWithoutUsersInput[]
-  deleteMany?: Prisma.commentsScalarWhereInput | Prisma.commentsScalarWhereInput[]
+export type commentsCreateOrConnectWithoutRepliesInput = {
+  where: Prisma.commentsWhereUniqueInput
+  create: Prisma.XOR<Prisma.commentsCreateWithoutRepliesInput, Prisma.commentsUncheckedCreateWithoutRepliesInput>
 }
 
-export type commentsUncheckedUpdateManyWithoutUsersNestedInput = {
-  create?: Prisma.XOR<Prisma.commentsCreateWithoutUsersInput, Prisma.commentsUncheckedCreateWithoutUsersInput> | Prisma.commentsCreateWithoutUsersInput[] | Prisma.commentsUncheckedCreateWithoutUsersInput[]
-  connectOrCreate?: Prisma.commentsCreateOrConnectWithoutUsersInput | Prisma.commentsCreateOrConnectWithoutUsersInput[]
-  upsert?: Prisma.commentsUpsertWithWhereUniqueWithoutUsersInput | Prisma.commentsUpsertWithWhereUniqueWithoutUsersInput[]
-  createMany?: Prisma.commentsCreateManyUsersInputEnvelope
-  set?: Prisma.commentsWhereUniqueInput | Prisma.commentsWhereUniqueInput[]
-  disconnect?: Prisma.commentsWhereUniqueInput | Prisma.commentsWhereUniqueInput[]
-  delete?: Prisma.commentsWhereUniqueInput | Prisma.commentsWhereUniqueInput[]
-  connect?: Prisma.commentsWhereUniqueInput | Prisma.commentsWhereUniqueInput[]
-  update?: Prisma.commentsUpdateWithWhereUniqueWithoutUsersInput | Prisma.commentsUpdateWithWhereUniqueWithoutUsersInput[]
-  updateMany?: Prisma.commentsUpdateManyWithWhereWithoutUsersInput | Prisma.commentsUpdateManyWithWhereWithoutUsersInput[]
-  deleteMany?: Prisma.commentsScalarWhereInput | Prisma.commentsScalarWhereInput[]
+export type commentsCreateWithoutParent_commentInput = {
+  id?: string
+  user_sub: string
+  comment_text: string
+  likes_count?: number
+  dislikes_count?: number
+  reports_count?: number
+  created_at?: Date | string
+  updated_at?: Date | string
+  posts: Prisma.postsCreateNestedOneWithoutCommentsInput
+  replies?: Prisma.commentsCreateNestedManyWithoutParent_commentInput
+  comment_votes?: Prisma.comment_votesCreateNestedManyWithoutCommentsInput
+  comment_reports?: Prisma.comment_reportsCreateNestedManyWithoutCommentsInput
+}
+
+export type commentsUncheckedCreateWithoutParent_commentInput = {
+  id?: string
+  post_id: string
+  user_sub: string
+  comment_text: string
+  likes_count?: number
+  dislikes_count?: number
+  reports_count?: number
+  created_at?: Date | string
+  updated_at?: Date | string
+  replies?: Prisma.commentsUncheckedCreateNestedManyWithoutParent_commentInput
+  comment_votes?: Prisma.comment_votesUncheckedCreateNestedManyWithoutCommentsInput
+  comment_reports?: Prisma.comment_reportsUncheckedCreateNestedManyWithoutCommentsInput
+}
+
+export type commentsCreateOrConnectWithoutParent_commentInput = {
+  where: Prisma.commentsWhereUniqueInput
+  create: Prisma.XOR<Prisma.commentsCreateWithoutParent_commentInput, Prisma.commentsUncheckedCreateWithoutParent_commentInput>
+}
+
+export type commentsCreateManyParent_commentInputEnvelope = {
+  data: Prisma.commentsCreateManyParent_commentInput | Prisma.commentsCreateManyParent_commentInput[]
+  skipDuplicates?: boolean
+}
+
+export type commentsUpsertWithoutRepliesInput = {
+  update: Prisma.XOR<Prisma.commentsUpdateWithoutRepliesInput, Prisma.commentsUncheckedUpdateWithoutRepliesInput>
+  create: Prisma.XOR<Prisma.commentsCreateWithoutRepliesInput, Prisma.commentsUncheckedCreateWithoutRepliesInput>
+  where?: Prisma.commentsWhereInput
+}
+
+export type commentsUpdateToOneWithWhereWithoutRepliesInput = {
+  where?: Prisma.commentsWhereInput
+  data: Prisma.XOR<Prisma.commentsUpdateWithoutRepliesInput, Prisma.commentsUncheckedUpdateWithoutRepliesInput>
+}
+
+export type commentsUpdateWithoutRepliesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  user_sub?: Prisma.StringFieldUpdateOperationsInput | string
+  comment_text?: Prisma.StringFieldUpdateOperationsInput | string
+  likes_count?: Prisma.IntFieldUpdateOperationsInput | number
+  dislikes_count?: Prisma.IntFieldUpdateOperationsInput | number
+  reports_count?: Prisma.IntFieldUpdateOperationsInput | number
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  posts?: Prisma.postsUpdateOneRequiredWithoutCommentsNestedInput
+  parent_comment?: Prisma.commentsUpdateOneWithoutRepliesNestedInput
+  comment_votes?: Prisma.comment_votesUpdateManyWithoutCommentsNestedInput
+  comment_reports?: Prisma.comment_reportsUpdateManyWithoutCommentsNestedInput
+}
+
+export type commentsUncheckedUpdateWithoutRepliesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  post_id?: Prisma.StringFieldUpdateOperationsInput | string
+  parent_comment_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  user_sub?: Prisma.StringFieldUpdateOperationsInput | string
+  comment_text?: Prisma.StringFieldUpdateOperationsInput | string
+  likes_count?: Prisma.IntFieldUpdateOperationsInput | number
+  dislikes_count?: Prisma.IntFieldUpdateOperationsInput | number
+  reports_count?: Prisma.IntFieldUpdateOperationsInput | number
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  comment_votes?: Prisma.comment_votesUncheckedUpdateManyWithoutCommentsNestedInput
+  comment_reports?: Prisma.comment_reportsUncheckedUpdateManyWithoutCommentsNestedInput
+}
+
+export type commentsUpsertWithWhereUniqueWithoutParent_commentInput = {
+  where: Prisma.commentsWhereUniqueInput
+  update: Prisma.XOR<Prisma.commentsUpdateWithoutParent_commentInput, Prisma.commentsUncheckedUpdateWithoutParent_commentInput>
+  create: Prisma.XOR<Prisma.commentsCreateWithoutParent_commentInput, Prisma.commentsUncheckedCreateWithoutParent_commentInput>
+}
+
+export type commentsUpdateWithWhereUniqueWithoutParent_commentInput = {
+  where: Prisma.commentsWhereUniqueInput
+  data: Prisma.XOR<Prisma.commentsUpdateWithoutParent_commentInput, Prisma.commentsUncheckedUpdateWithoutParent_commentInput>
+}
+
+export type commentsUpdateManyWithWhereWithoutParent_commentInput = {
+  where: Prisma.commentsScalarWhereInput
+  data: Prisma.XOR<Prisma.commentsUpdateManyMutationInput, Prisma.commentsUncheckedUpdateManyWithoutParent_commentInput>
+}
+
+export type commentsScalarWhereInput = {
+  AND?: Prisma.commentsScalarWhereInput | Prisma.commentsScalarWhereInput[]
+  OR?: Prisma.commentsScalarWhereInput[]
+  NOT?: Prisma.commentsScalarWhereInput | Prisma.commentsScalarWhereInput[]
+  id?: Prisma.UuidFilter<"comments"> | string
+  post_id?: Prisma.UuidFilter<"comments"> | string
+  parent_comment_id?: Prisma.UuidNullableFilter<"comments"> | string | null
+  user_sub?: Prisma.StringFilter<"comments"> | string
+  comment_text?: Prisma.StringFilter<"comments"> | string
+  likes_count?: Prisma.IntFilter<"comments"> | number
+  dislikes_count?: Prisma.IntFilter<"comments"> | number
+  reports_count?: Prisma.IntFilter<"comments"> | number
+  created_at?: Prisma.DateTimeFilter<"comments"> | Date | string
+  updated_at?: Prisma.DateTimeFilter<"comments"> | Date | string
+}
+
+export type commentsCreateWithoutComment_votesInput = {
+  id?: string
+  user_sub: string
+  comment_text: string
+  likes_count?: number
+  dislikes_count?: number
+  reports_count?: number
+  created_at?: Date | string
+  updated_at?: Date | string
+  posts: Prisma.postsCreateNestedOneWithoutCommentsInput
+  parent_comment?: Prisma.commentsCreateNestedOneWithoutRepliesInput
+  replies?: Prisma.commentsCreateNestedManyWithoutParent_commentInput
+  comment_reports?: Prisma.comment_reportsCreateNestedManyWithoutCommentsInput
+}
+
+export type commentsUncheckedCreateWithoutComment_votesInput = {
+  id?: string
+  post_id: string
+  parent_comment_id?: string | null
+  user_sub: string
+  comment_text: string
+  likes_count?: number
+  dislikes_count?: number
+  reports_count?: number
+  created_at?: Date | string
+  updated_at?: Date | string
+  replies?: Prisma.commentsUncheckedCreateNestedManyWithoutParent_commentInput
+  comment_reports?: Prisma.comment_reportsUncheckedCreateNestedManyWithoutCommentsInput
+}
+
+export type commentsCreateOrConnectWithoutComment_votesInput = {
+  where: Prisma.commentsWhereUniqueInput
+  create: Prisma.XOR<Prisma.commentsCreateWithoutComment_votesInput, Prisma.commentsUncheckedCreateWithoutComment_votesInput>
+}
+
+export type commentsUpsertWithoutComment_votesInput = {
+  update: Prisma.XOR<Prisma.commentsUpdateWithoutComment_votesInput, Prisma.commentsUncheckedUpdateWithoutComment_votesInput>
+  create: Prisma.XOR<Prisma.commentsCreateWithoutComment_votesInput, Prisma.commentsUncheckedCreateWithoutComment_votesInput>
+  where?: Prisma.commentsWhereInput
+}
+
+export type commentsUpdateToOneWithWhereWithoutComment_votesInput = {
+  where?: Prisma.commentsWhereInput
+  data: Prisma.XOR<Prisma.commentsUpdateWithoutComment_votesInput, Prisma.commentsUncheckedUpdateWithoutComment_votesInput>
+}
+
+export type commentsUpdateWithoutComment_votesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  user_sub?: Prisma.StringFieldUpdateOperationsInput | string
+  comment_text?: Prisma.StringFieldUpdateOperationsInput | string
+  likes_count?: Prisma.IntFieldUpdateOperationsInput | number
+  dislikes_count?: Prisma.IntFieldUpdateOperationsInput | number
+  reports_count?: Prisma.IntFieldUpdateOperationsInput | number
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  posts?: Prisma.postsUpdateOneRequiredWithoutCommentsNestedInput
+  parent_comment?: Prisma.commentsUpdateOneWithoutRepliesNestedInput
+  replies?: Prisma.commentsUpdateManyWithoutParent_commentNestedInput
+  comment_reports?: Prisma.comment_reportsUpdateManyWithoutCommentsNestedInput
+}
+
+export type commentsUncheckedUpdateWithoutComment_votesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  post_id?: Prisma.StringFieldUpdateOperationsInput | string
+  parent_comment_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  user_sub?: Prisma.StringFieldUpdateOperationsInput | string
+  comment_text?: Prisma.StringFieldUpdateOperationsInput | string
+  likes_count?: Prisma.IntFieldUpdateOperationsInput | number
+  dislikes_count?: Prisma.IntFieldUpdateOperationsInput | number
+  reports_count?: Prisma.IntFieldUpdateOperationsInput | number
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  replies?: Prisma.commentsUncheckedUpdateManyWithoutParent_commentNestedInput
+  comment_reports?: Prisma.comment_reportsUncheckedUpdateManyWithoutCommentsNestedInput
+}
+
+export type commentsCreateWithoutComment_reportsInput = {
+  id?: string
+  user_sub: string
+  comment_text: string
+  likes_count?: number
+  dislikes_count?: number
+  reports_count?: number
+  created_at?: Date | string
+  updated_at?: Date | string
+  posts: Prisma.postsCreateNestedOneWithoutCommentsInput
+  parent_comment?: Prisma.commentsCreateNestedOneWithoutRepliesInput
+  replies?: Prisma.commentsCreateNestedManyWithoutParent_commentInput
+  comment_votes?: Prisma.comment_votesCreateNestedManyWithoutCommentsInput
+}
+
+export type commentsUncheckedCreateWithoutComment_reportsInput = {
+  id?: string
+  post_id: string
+  parent_comment_id?: string | null
+  user_sub: string
+  comment_text: string
+  likes_count?: number
+  dislikes_count?: number
+  reports_count?: number
+  created_at?: Date | string
+  updated_at?: Date | string
+  replies?: Prisma.commentsUncheckedCreateNestedManyWithoutParent_commentInput
+  comment_votes?: Prisma.comment_votesUncheckedCreateNestedManyWithoutCommentsInput
+}
+
+export type commentsCreateOrConnectWithoutComment_reportsInput = {
+  where: Prisma.commentsWhereUniqueInput
+  create: Prisma.XOR<Prisma.commentsCreateWithoutComment_reportsInput, Prisma.commentsUncheckedCreateWithoutComment_reportsInput>
+}
+
+export type commentsUpsertWithoutComment_reportsInput = {
+  update: Prisma.XOR<Prisma.commentsUpdateWithoutComment_reportsInput, Prisma.commentsUncheckedUpdateWithoutComment_reportsInput>
+  create: Prisma.XOR<Prisma.commentsCreateWithoutComment_reportsInput, Prisma.commentsUncheckedCreateWithoutComment_reportsInput>
+  where?: Prisma.commentsWhereInput
+}
+
+export type commentsUpdateToOneWithWhereWithoutComment_reportsInput = {
+  where?: Prisma.commentsWhereInput
+  data: Prisma.XOR<Prisma.commentsUpdateWithoutComment_reportsInput, Prisma.commentsUncheckedUpdateWithoutComment_reportsInput>
+}
+
+export type commentsUpdateWithoutComment_reportsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  user_sub?: Prisma.StringFieldUpdateOperationsInput | string
+  comment_text?: Prisma.StringFieldUpdateOperationsInput | string
+  likes_count?: Prisma.IntFieldUpdateOperationsInput | number
+  dislikes_count?: Prisma.IntFieldUpdateOperationsInput | number
+  reports_count?: Prisma.IntFieldUpdateOperationsInput | number
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  posts?: Prisma.postsUpdateOneRequiredWithoutCommentsNestedInput
+  parent_comment?: Prisma.commentsUpdateOneWithoutRepliesNestedInput
+  replies?: Prisma.commentsUpdateManyWithoutParent_commentNestedInput
+  comment_votes?: Prisma.comment_votesUpdateManyWithoutCommentsNestedInput
+}
+
+export type commentsUncheckedUpdateWithoutComment_reportsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  post_id?: Prisma.StringFieldUpdateOperationsInput | string
+  parent_comment_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  user_sub?: Prisma.StringFieldUpdateOperationsInput | string
+  comment_text?: Prisma.StringFieldUpdateOperationsInput | string
+  likes_count?: Prisma.IntFieldUpdateOperationsInput | number
+  dislikes_count?: Prisma.IntFieldUpdateOperationsInput | number
+  reports_count?: Prisma.IntFieldUpdateOperationsInput | number
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  replies?: Prisma.commentsUncheckedUpdateManyWithoutParent_commentNestedInput
+  comment_votes?: Prisma.comment_votesUncheckedUpdateManyWithoutCommentsNestedInput
 }
 
 export type commentsCreateWithoutPostsInput = {
-  id: string
+  id?: string
+  user_sub: string
   comment_text: string
+  likes_count?: number
+  dislikes_count?: number
+  reports_count?: number
   created_at?: Date | string
-  users: Prisma.usersCreateNestedOneWithoutCommentsInput
+  updated_at?: Date | string
+  parent_comment?: Prisma.commentsCreateNestedOneWithoutRepliesInput
+  replies?: Prisma.commentsCreateNestedManyWithoutParent_commentInput
+  comment_votes?: Prisma.comment_votesCreateNestedManyWithoutCommentsInput
+  comment_reports?: Prisma.comment_reportsCreateNestedManyWithoutCommentsInput
 }
 
 export type commentsUncheckedCreateWithoutPostsInput = {
-  id: string
+  id?: string
+  parent_comment_id?: string | null
   user_sub: string
   comment_text: string
+  likes_count?: number
+  dislikes_count?: number
+  reports_count?: number
   created_at?: Date | string
+  updated_at?: Date | string
+  replies?: Prisma.commentsUncheckedCreateNestedManyWithoutParent_commentInput
+  comment_votes?: Prisma.comment_votesUncheckedCreateNestedManyWithoutCommentsInput
+  comment_reports?: Prisma.comment_reportsUncheckedCreateNestedManyWithoutCommentsInput
 }
 
 export type commentsCreateOrConnectWithoutPostsInput = {
@@ -451,179 +1020,263 @@ export type commentsUpdateManyWithWhereWithoutPostsInput = {
   data: Prisma.XOR<Prisma.commentsUpdateManyMutationInput, Prisma.commentsUncheckedUpdateManyWithoutPostsInput>
 }
 
-export type commentsScalarWhereInput = {
-  AND?: Prisma.commentsScalarWhereInput | Prisma.commentsScalarWhereInput[]
-  OR?: Prisma.commentsScalarWhereInput[]
-  NOT?: Prisma.commentsScalarWhereInput | Prisma.commentsScalarWhereInput[]
-  id?: Prisma.UuidFilter<"comments"> | string
-  post_id?: Prisma.UuidFilter<"comments"> | string
-  user_sub?: Prisma.UuidFilter<"comments"> | string
-  comment_text?: Prisma.StringFilter<"comments"> | string
-  created_at?: Prisma.DateTimeFilter<"comments"> | Date | string
-}
-
-export type commentsCreateWithoutUsersInput = {
-  id: string
-  comment_text: string
-  created_at?: Date | string
-  posts: Prisma.postsCreateNestedOneWithoutCommentsInput
-}
-
-export type commentsUncheckedCreateWithoutUsersInput = {
-  id: string
+export type commentsCreateManyParent_commentInput = {
+  id?: string
   post_id: string
+  user_sub: string
   comment_text: string
+  likes_count?: number
+  dislikes_count?: number
+  reports_count?: number
   created_at?: Date | string
+  updated_at?: Date | string
 }
 
-export type commentsCreateOrConnectWithoutUsersInput = {
-  where: Prisma.commentsWhereUniqueInput
-  create: Prisma.XOR<Prisma.commentsCreateWithoutUsersInput, Prisma.commentsUncheckedCreateWithoutUsersInput>
+export type commentsUpdateWithoutParent_commentInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  user_sub?: Prisma.StringFieldUpdateOperationsInput | string
+  comment_text?: Prisma.StringFieldUpdateOperationsInput | string
+  likes_count?: Prisma.IntFieldUpdateOperationsInput | number
+  dislikes_count?: Prisma.IntFieldUpdateOperationsInput | number
+  reports_count?: Prisma.IntFieldUpdateOperationsInput | number
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  posts?: Prisma.postsUpdateOneRequiredWithoutCommentsNestedInput
+  replies?: Prisma.commentsUpdateManyWithoutParent_commentNestedInput
+  comment_votes?: Prisma.comment_votesUpdateManyWithoutCommentsNestedInput
+  comment_reports?: Prisma.comment_reportsUpdateManyWithoutCommentsNestedInput
 }
 
-export type commentsCreateManyUsersInputEnvelope = {
-  data: Prisma.commentsCreateManyUsersInput | Prisma.commentsCreateManyUsersInput[]
-  skipDuplicates?: boolean
+export type commentsUncheckedUpdateWithoutParent_commentInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  post_id?: Prisma.StringFieldUpdateOperationsInput | string
+  user_sub?: Prisma.StringFieldUpdateOperationsInput | string
+  comment_text?: Prisma.StringFieldUpdateOperationsInput | string
+  likes_count?: Prisma.IntFieldUpdateOperationsInput | number
+  dislikes_count?: Prisma.IntFieldUpdateOperationsInput | number
+  reports_count?: Prisma.IntFieldUpdateOperationsInput | number
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  replies?: Prisma.commentsUncheckedUpdateManyWithoutParent_commentNestedInput
+  comment_votes?: Prisma.comment_votesUncheckedUpdateManyWithoutCommentsNestedInput
+  comment_reports?: Prisma.comment_reportsUncheckedUpdateManyWithoutCommentsNestedInput
 }
 
-export type commentsUpsertWithWhereUniqueWithoutUsersInput = {
-  where: Prisma.commentsWhereUniqueInput
-  update: Prisma.XOR<Prisma.commentsUpdateWithoutUsersInput, Prisma.commentsUncheckedUpdateWithoutUsersInput>
-  create: Prisma.XOR<Prisma.commentsCreateWithoutUsersInput, Prisma.commentsUncheckedCreateWithoutUsersInput>
-}
-
-export type commentsUpdateWithWhereUniqueWithoutUsersInput = {
-  where: Prisma.commentsWhereUniqueInput
-  data: Prisma.XOR<Prisma.commentsUpdateWithoutUsersInput, Prisma.commentsUncheckedUpdateWithoutUsersInput>
-}
-
-export type commentsUpdateManyWithWhereWithoutUsersInput = {
-  where: Prisma.commentsScalarWhereInput
-  data: Prisma.XOR<Prisma.commentsUpdateManyMutationInput, Prisma.commentsUncheckedUpdateManyWithoutUsersInput>
+export type commentsUncheckedUpdateManyWithoutParent_commentInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  post_id?: Prisma.StringFieldUpdateOperationsInput | string
+  user_sub?: Prisma.StringFieldUpdateOperationsInput | string
+  comment_text?: Prisma.StringFieldUpdateOperationsInput | string
+  likes_count?: Prisma.IntFieldUpdateOperationsInput | number
+  dislikes_count?: Prisma.IntFieldUpdateOperationsInput | number
+  reports_count?: Prisma.IntFieldUpdateOperationsInput | number
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type commentsCreateManyPostsInput = {
-  id: string
+  id?: string
+  parent_comment_id?: string | null
   user_sub: string
   comment_text: string
+  likes_count?: number
+  dislikes_count?: number
+  reports_count?: number
   created_at?: Date | string
+  updated_at?: Date | string
 }
 
 export type commentsUpdateWithoutPostsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  user_sub?: Prisma.StringFieldUpdateOperationsInput | string
   comment_text?: Prisma.StringFieldUpdateOperationsInput | string
+  likes_count?: Prisma.IntFieldUpdateOperationsInput | number
+  dislikes_count?: Prisma.IntFieldUpdateOperationsInput | number
+  reports_count?: Prisma.IntFieldUpdateOperationsInput | number
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  users?: Prisma.usersUpdateOneRequiredWithoutCommentsNestedInput
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  parent_comment?: Prisma.commentsUpdateOneWithoutRepliesNestedInput
+  replies?: Prisma.commentsUpdateManyWithoutParent_commentNestedInput
+  comment_votes?: Prisma.comment_votesUpdateManyWithoutCommentsNestedInput
+  comment_reports?: Prisma.comment_reportsUpdateManyWithoutCommentsNestedInput
 }
 
 export type commentsUncheckedUpdateWithoutPostsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  parent_comment_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   user_sub?: Prisma.StringFieldUpdateOperationsInput | string
   comment_text?: Prisma.StringFieldUpdateOperationsInput | string
+  likes_count?: Prisma.IntFieldUpdateOperationsInput | number
+  dislikes_count?: Prisma.IntFieldUpdateOperationsInput | number
+  reports_count?: Prisma.IntFieldUpdateOperationsInput | number
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  replies?: Prisma.commentsUncheckedUpdateManyWithoutParent_commentNestedInput
+  comment_votes?: Prisma.comment_votesUncheckedUpdateManyWithoutCommentsNestedInput
+  comment_reports?: Prisma.comment_reportsUncheckedUpdateManyWithoutCommentsNestedInput
 }
 
 export type commentsUncheckedUpdateManyWithoutPostsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  parent_comment_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   user_sub?: Prisma.StringFieldUpdateOperationsInput | string
   comment_text?: Prisma.StringFieldUpdateOperationsInput | string
+  likes_count?: Prisma.IntFieldUpdateOperationsInput | number
+  dislikes_count?: Prisma.IntFieldUpdateOperationsInput | number
+  reports_count?: Prisma.IntFieldUpdateOperationsInput | number
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type commentsCreateManyUsersInput = {
-  id: string
-  post_id: string
-  comment_text: string
-  created_at?: Date | string
+
+/**
+ * Count Type CommentsCountOutputType
+ */
+
+export type CommentsCountOutputType = {
+  replies: number
+  comment_votes: number
+  comment_reports: number
 }
 
-export type commentsUpdateWithoutUsersInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  comment_text?: Prisma.StringFieldUpdateOperationsInput | string
-  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  posts?: Prisma.postsUpdateOneRequiredWithoutCommentsNestedInput
+export type CommentsCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  replies?: boolean | CommentsCountOutputTypeCountRepliesArgs
+  comment_votes?: boolean | CommentsCountOutputTypeCountComment_votesArgs
+  comment_reports?: boolean | CommentsCountOutputTypeCountComment_reportsArgs
 }
 
-export type commentsUncheckedUpdateWithoutUsersInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  post_id?: Prisma.StringFieldUpdateOperationsInput | string
-  comment_text?: Prisma.StringFieldUpdateOperationsInput | string
-  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+/**
+ * CommentsCountOutputType without action
+ */
+export type CommentsCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CommentsCountOutputType
+   */
+  select?: Prisma.CommentsCountOutputTypeSelect<ExtArgs> | null
 }
 
-export type commentsUncheckedUpdateManyWithoutUsersInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  post_id?: Prisma.StringFieldUpdateOperationsInput | string
-  comment_text?: Prisma.StringFieldUpdateOperationsInput | string
-  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+/**
+ * CommentsCountOutputType without action
+ */
+export type CommentsCountOutputTypeCountRepliesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.commentsWhereInput
 }
 
+/**
+ * CommentsCountOutputType without action
+ */
+export type CommentsCountOutputTypeCountComment_votesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.comment_votesWhereInput
+}
+
+/**
+ * CommentsCountOutputType without action
+ */
+export type CommentsCountOutputTypeCountComment_reportsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.comment_reportsWhereInput
+}
 
 
 export type commentsSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   post_id?: boolean
+  parent_comment_id?: boolean
   user_sub?: boolean
   comment_text?: boolean
+  likes_count?: boolean
+  dislikes_count?: boolean
+  reports_count?: boolean
   created_at?: boolean
+  updated_at?: boolean
   posts?: boolean | Prisma.postsDefaultArgs<ExtArgs>
-  users?: boolean | Prisma.usersDefaultArgs<ExtArgs>
+  parent_comment?: boolean | Prisma.comments$parent_commentArgs<ExtArgs>
+  replies?: boolean | Prisma.comments$repliesArgs<ExtArgs>
+  comment_votes?: boolean | Prisma.comments$comment_votesArgs<ExtArgs>
+  comment_reports?: boolean | Prisma.comments$comment_reportsArgs<ExtArgs>
+  _count?: boolean | Prisma.CommentsCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["comments"]>
 
 export type commentsSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   post_id?: boolean
+  parent_comment_id?: boolean
   user_sub?: boolean
   comment_text?: boolean
+  likes_count?: boolean
+  dislikes_count?: boolean
+  reports_count?: boolean
   created_at?: boolean
+  updated_at?: boolean
   posts?: boolean | Prisma.postsDefaultArgs<ExtArgs>
-  users?: boolean | Prisma.usersDefaultArgs<ExtArgs>
+  parent_comment?: boolean | Prisma.comments$parent_commentArgs<ExtArgs>
 }, ExtArgs["result"]["comments"]>
 
 export type commentsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   post_id?: boolean
+  parent_comment_id?: boolean
   user_sub?: boolean
   comment_text?: boolean
+  likes_count?: boolean
+  dislikes_count?: boolean
+  reports_count?: boolean
   created_at?: boolean
+  updated_at?: boolean
   posts?: boolean | Prisma.postsDefaultArgs<ExtArgs>
-  users?: boolean | Prisma.usersDefaultArgs<ExtArgs>
+  parent_comment?: boolean | Prisma.comments$parent_commentArgs<ExtArgs>
 }, ExtArgs["result"]["comments"]>
 
 export type commentsSelectScalar = {
   id?: boolean
   post_id?: boolean
+  parent_comment_id?: boolean
   user_sub?: boolean
   comment_text?: boolean
+  likes_count?: boolean
+  dislikes_count?: boolean
+  reports_count?: boolean
   created_at?: boolean
+  updated_at?: boolean
 }
 
-export type commentsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "post_id" | "user_sub" | "comment_text" | "created_at", ExtArgs["result"]["comments"]>
+export type commentsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "post_id" | "parent_comment_id" | "user_sub" | "comment_text" | "likes_count" | "dislikes_count" | "reports_count" | "created_at" | "updated_at", ExtArgs["result"]["comments"]>
 export type commentsInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   posts?: boolean | Prisma.postsDefaultArgs<ExtArgs>
-  users?: boolean | Prisma.usersDefaultArgs<ExtArgs>
+  parent_comment?: boolean | Prisma.comments$parent_commentArgs<ExtArgs>
+  replies?: boolean | Prisma.comments$repliesArgs<ExtArgs>
+  comment_votes?: boolean | Prisma.comments$comment_votesArgs<ExtArgs>
+  comment_reports?: boolean | Prisma.comments$comment_reportsArgs<ExtArgs>
+  _count?: boolean | Prisma.CommentsCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type commentsIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   posts?: boolean | Prisma.postsDefaultArgs<ExtArgs>
-  users?: boolean | Prisma.usersDefaultArgs<ExtArgs>
+  parent_comment?: boolean | Prisma.comments$parent_commentArgs<ExtArgs>
 }
 export type commentsIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   posts?: boolean | Prisma.postsDefaultArgs<ExtArgs>
-  users?: boolean | Prisma.usersDefaultArgs<ExtArgs>
+  parent_comment?: boolean | Prisma.comments$parent_commentArgs<ExtArgs>
 }
 
 export type $commentsPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "comments"
   objects: {
     posts: Prisma.$postsPayload<ExtArgs>
-    users: Prisma.$usersPayload<ExtArgs>
+    parent_comment: Prisma.$commentsPayload<ExtArgs> | null
+    replies: Prisma.$commentsPayload<ExtArgs>[]
+    comment_votes: Prisma.$comment_votesPayload<ExtArgs>[]
+    comment_reports: Prisma.$comment_reportsPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     post_id: string
+    parent_comment_id: string | null
     user_sub: string
     comment_text: string
+    likes_count: number
+    dislikes_count: number
+    reports_count: number
     created_at: Date
+    updated_at: Date
   }, ExtArgs["result"]["comments"]>
   composites: {}
 }
@@ -1019,7 +1672,10 @@ readonly fields: commentsFieldRefs;
 export interface Prisma__commentsClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   posts<T extends Prisma.postsDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.postsDefaultArgs<ExtArgs>>): Prisma.Prisma__postsClient<runtime.Types.Result.GetResult<Prisma.$postsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  users<T extends Prisma.usersDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.usersDefaultArgs<ExtArgs>>): Prisma.Prisma__usersClient<runtime.Types.Result.GetResult<Prisma.$usersPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  parent_comment<T extends Prisma.comments$parent_commentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.comments$parent_commentArgs<ExtArgs>>): Prisma.Prisma__commentsClient<runtime.Types.Result.GetResult<Prisma.$commentsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  replies<T extends Prisma.comments$repliesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.comments$repliesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$commentsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  comment_votes<T extends Prisma.comments$comment_votesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.comments$comment_votesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$comment_votesPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  comment_reports<T extends Prisma.comments$comment_reportsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.comments$comment_reportsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$comment_reportsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1051,9 +1707,14 @@ export interface Prisma__commentsClient<T, Null = never, ExtArgs extends runtime
 export interface commentsFieldRefs {
   readonly id: Prisma.FieldRef<"comments", 'String'>
   readonly post_id: Prisma.FieldRef<"comments", 'String'>
+  readonly parent_comment_id: Prisma.FieldRef<"comments", 'String'>
   readonly user_sub: Prisma.FieldRef<"comments", 'String'>
   readonly comment_text: Prisma.FieldRef<"comments", 'String'>
+  readonly likes_count: Prisma.FieldRef<"comments", 'Int'>
+  readonly dislikes_count: Prisma.FieldRef<"comments", 'Int'>
+  readonly reports_count: Prisma.FieldRef<"comments", 'Int'>
   readonly created_at: Prisma.FieldRef<"comments", 'DateTime'>
+  readonly updated_at: Prisma.FieldRef<"comments", 'DateTime'>
 }
     
 
@@ -1452,6 +2113,97 @@ export type commentsDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Inte
    * Limit how many comments to delete.
    */
   limit?: number
+}
+
+/**
+ * comments.parent_comment
+ */
+export type comments$parent_commentArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the comments
+   */
+  select?: Prisma.commentsSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the comments
+   */
+  omit?: Prisma.commentsOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.commentsInclude<ExtArgs> | null
+  where?: Prisma.commentsWhereInput
+}
+
+/**
+ * comments.replies
+ */
+export type comments$repliesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the comments
+   */
+  select?: Prisma.commentsSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the comments
+   */
+  omit?: Prisma.commentsOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.commentsInclude<ExtArgs> | null
+  where?: Prisma.commentsWhereInput
+  orderBy?: Prisma.commentsOrderByWithRelationInput | Prisma.commentsOrderByWithRelationInput[]
+  cursor?: Prisma.commentsWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CommentsScalarFieldEnum | Prisma.CommentsScalarFieldEnum[]
+}
+
+/**
+ * comments.comment_votes
+ */
+export type comments$comment_votesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the comment_votes
+   */
+  select?: Prisma.comment_votesSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the comment_votes
+   */
+  omit?: Prisma.comment_votesOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.comment_votesInclude<ExtArgs> | null
+  where?: Prisma.comment_votesWhereInput
+  orderBy?: Prisma.comment_votesOrderByWithRelationInput | Prisma.comment_votesOrderByWithRelationInput[]
+  cursor?: Prisma.comment_votesWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.Comment_votesScalarFieldEnum | Prisma.Comment_votesScalarFieldEnum[]
+}
+
+/**
+ * comments.comment_reports
+ */
+export type comments$comment_reportsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the comment_reports
+   */
+  select?: Prisma.comment_reportsSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the comment_reports
+   */
+  omit?: Prisma.comment_reportsOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.comment_reportsInclude<ExtArgs> | null
+  where?: Prisma.comment_reportsWhereInput
+  orderBy?: Prisma.comment_reportsOrderByWithRelationInput | Prisma.comment_reportsOrderByWithRelationInput[]
+  cursor?: Prisma.comment_reportsWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.Comment_reportsScalarFieldEnum | Prisma.Comment_reportsScalarFieldEnum[]
 }
 
 /**

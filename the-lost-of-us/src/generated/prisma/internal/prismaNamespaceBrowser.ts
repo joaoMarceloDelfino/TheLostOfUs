@@ -52,11 +52,12 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   comments: 'comments',
+  comment_votes: 'comment_votes',
+  comment_reports: 'comment_reports',
   petimages: 'petimages',
   posts: 'posts',
   sightings: 'sightings',
-  spatial_ref_sys: 'spatial_ref_sys',
-  users: 'users'
+  spatial_ref_sys: 'spatial_ref_sys'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -78,12 +79,40 @@ export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof
 export const CommentsScalarFieldEnum = {
   id: 'id',
   post_id: 'post_id',
+  parent_comment_id: 'parent_comment_id',
   user_sub: 'user_sub',
   comment_text: 'comment_text',
-  created_at: 'created_at'
+  likes_count: 'likes_count',
+  dislikes_count: 'dislikes_count',
+  reports_count: 'reports_count',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
 } as const
 
 export type CommentsScalarFieldEnum = (typeof CommentsScalarFieldEnum)[keyof typeof CommentsScalarFieldEnum]
+
+
+export const Comment_votesScalarFieldEnum = {
+  id: 'id',
+  comment_id: 'comment_id',
+  user_sub: 'user_sub',
+  value: 'value',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type Comment_votesScalarFieldEnum = (typeof Comment_votesScalarFieldEnum)[keyof typeof Comment_votesScalarFieldEnum]
+
+
+export const Comment_reportsScalarFieldEnum = {
+  id: 'id',
+  comment_id: 'comment_id',
+  user_sub: 'user_sub',
+  reason: 'reason',
+  created_at: 'created_at'
+} as const
+
+export type Comment_reportsScalarFieldEnum = (typeof Comment_reportsScalarFieldEnum)[keyof typeof Comment_reportsScalarFieldEnum]
 
 
 export const PetimagesScalarFieldEnum = {
@@ -126,16 +155,6 @@ export const Spatial_ref_sysScalarFieldEnum = {
 } as const
 
 export type Spatial_ref_sysScalarFieldEnum = (typeof Spatial_ref_sysScalarFieldEnum)[keyof typeof Spatial_ref_sysScalarFieldEnum]
-
-
-export const UsersScalarFieldEnum = {
-  id: 'id',
-  user_sub: 'user_sub',
-  profile_image_uri: 'profile_image_uri',
-  created_at: 'created_at'
-} as const
-
-export type UsersScalarFieldEnum = (typeof UsersScalarFieldEnum)[keyof typeof UsersScalarFieldEnum]
 
 
 export const SortOrder = {

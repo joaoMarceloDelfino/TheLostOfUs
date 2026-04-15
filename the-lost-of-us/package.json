@@ -10,16 +10,21 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^7.0.8",
+    "@heroicons/react": "^2.2.0",
     "@hookform/resolvers": "^5.2.2",
     "@prisma/adapter-pg": "^7.6.0",
     "@prisma/client": "^7.6.0",
+    "@types/leaflet": "^1.9.21",
     "axios": "^1.14.0",
     "dotenv": "^17.4.0",
+    "leaflet": "^1.9.4",
     "next": "16.2.1",
     "pg": "^8.20.0",
     "react": "19.2.4",
+    "react-confirm": "^0.5.0",
     "react-dom": "19.2.4",
     "react-hook-form": "^7.72.1",
+    "react-leaflet": "^5.0.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {

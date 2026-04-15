@@ -355,14 +355,6 @@ export type spatial_ref_sysSumOrderByAggregateInput = {
   auth_srid?: Prisma.SortOrder
 }
 
-export type IntFieldUpdateOperationsInput = {
-  set?: number
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
 export type NullableIntFieldUpdateOperationsInput = {
   set?: number | null
   increment?: number

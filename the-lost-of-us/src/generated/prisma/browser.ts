@@ -23,6 +23,16 @@ export * from './enums';
  */
 export type comments = Prisma.commentsModel
 /**
+ * Model comment_votes
+ * 
+ */
+export type comment_votes = Prisma.comment_votesModel
+/**
+ * Model comment_reports
+ * 
+ */
+export type comment_reports = Prisma.comment_reportsModel
+/**
  * Model petimages
  * 
  */
@@ -42,8 +52,3 @@ export type sightings = Prisma.sightingsModel
  * This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
  */
 export type spatial_ref_sys = Prisma.spatial_ref_sysModel
-/**
- * Model users
- * 
- */
-export type users = Prisma.usersModel

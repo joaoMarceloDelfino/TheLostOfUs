@@ -9,9 +9,10 @@
  * 🟢 You can import this file directly.
  */
 export type * from './models/comments'
+export type * from './models/comment_votes'
+export type * from './models/comment_reports'
 export type * from './models/petimages'
 export type * from './models/posts'
 export type * from './models/sightings'
 export type * from './models/spatial_ref_sys'
-export type * from './models/users'
 export type * from './commonInputTypes'
