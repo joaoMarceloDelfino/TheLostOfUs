@@ -3,6 +3,7 @@ import { CreateCommentSchema, parseCreateCommentBodyWithZod } from "@/schemas/cr
 import { parseUpdateCommentBodyWithZod } from "@/schemas/updateComment.schema";
 import { parseCommentVoteBodyWithZod } from "@/schemas/commentVote.schema";
 // import { parseCommentReportBodyWithZod } from "@/schemas/commentReport.schema";
+import { clerkClient } from "@clerk/nextjs/server";
 import PostService from "./PostService";
 
 export class CommentValidationError extends Error {
@@ -18,6 +19,7 @@ export type CommentTreeItem = {
     parentCommentId: string | null;
     userSub: string;
     postUserSub: string;
+    authorName: string;
     commentText: string;
     likesCount: number;
     dislikesCount: number;
@@ -31,7 +33,18 @@ export type CommentTreeItem = {
     replies: CommentTreeItem[];
 };
 
+type ClerkUserLike = {
+    id: string;
+    firstName?: string | null;
+    lastName?: string | null;
+    username?: string | null;
+    primaryEmailAddress?: { emailAddress?: string | null } | null;
+    emailAddresses?: Array<{ emailAddress?: string | null }>;
+};
+
 class CommentService {
+    private readonly authorFallback = "Autor desconhecido";
+
     private parseValidation<T>(parser: (body: unknown) => T, body: unknown): T {
         try {
             return parser(body);
@@ -43,7 +56,64 @@ class CommentService {
         }
     }
 
-    private mapRow(row: CommentRow, viewerUserSub?: string | null): CommentTreeItem {
+    private resolveAuthorName(user?: ClerkUserLike): string {
+        if (!user) {
+            return this.authorFallback;
+        }
+
+        const fullName = [user.firstName, user.lastName]
+            .filter((value): value is string => Boolean(value && value.trim()))
+            .join(" ")
+            .trim();
+
+        if (fullName) {
+            return fullName;
+        }
+
+        if (user.username && user.username.trim()) {
+            return user.username.trim();
+        }
+
+        const primaryEmail = user.primaryEmailAddress?.emailAddress?.trim();
+        if (primaryEmail) {
+            return primaryEmail;
+        }
+
+        const firstEmail = user.emailAddresses?.find((email) => email.emailAddress?.trim())?.emailAddress?.trim();
+        if (firstEmail) {
+            return firstEmail;
+        }
+
+        return this.authorFallback;
+    }
+
+    private async getAuthorNameMap(userSubs: string[]): Promise<Map<string, string>> {
+        const uniqueSubs = Array.from(new Set(userSubs.filter((value) => Boolean(value && value.trim()))));
+
+        if (!uniqueSubs.length) {
+            return new Map();
+        }
+
+        try {
+            const client = await clerkClient();
+            const usersResponse = await client.users.getUserList({
+                userId: uniqueSubs,
+                limit: uniqueSubs.length,
+            });
+
+            const authorMap = new Map<string, string>();
+            usersResponse.data.forEach((user) => {
+                const typedUser = user as ClerkUserLike;
+                authorMap.set(typedUser.id, this.resolveAuthorName(typedUser));
+            });
+
+            return authorMap;
+        } catch {
+            return new Map();
+        }
+    }
+
+    private mapRow(row: CommentRow, viewerUserSub?: string | null, authorName?: string): CommentTreeItem {
         const canEdit = !!viewerUserSub && row.user_sub === viewerUserSub;
         const canDelete = !!viewerUserSub && (row.user_sub === viewerUserSub || row.post_user_sub === viewerUserSub);
 
@@ -53,6 +123,7 @@ class CommentService {
             parentCommentId: row.parent_comment_id,
             userSub: row.user_sub,
             postUserSub: row.post_user_sub,
+            authorName: authorName ?? this.authorFallback,
             commentText: row.comment_text,
             likesCount: row.likes_count,
             dislikesCount: row.dislikes_count,
@@ -67,8 +138,9 @@ class CommentService {
         };
     }
 
-    private buildTree(rows: CommentRow[], viewerUserSub?: string | null): CommentTreeItem[] {
-        const mapped = rows.map((row) => this.mapRow(row, viewerUserSub));
+    private async buildTree(rows: CommentRow[], viewerUserSub?: string | null): Promise<CommentTreeItem[]> {
+        const authorMap = await this.getAuthorNameMap(rows.map((row) => row.user_sub));
+        const mapped = rows.map((row) => this.mapRow(row, viewerUserSub, authorMap.get(row.user_sub)));
         const byId = new Map(mapped.map((item) => [item.id, item]));
         const roots: CommentTreeItem[] = [];
 
@@ -133,7 +205,8 @@ class CommentService {
             userSub,
         });
 
-        return this.mapRow(created, userSub);
+        const authorMap = await this.getAuthorNameMap([created.user_sub]);
+        return this.mapRow(created, userSub, authorMap.get(created.user_sub));
     }
 
     async updateComment(body: unknown, userSub: string): Promise<CommentTreeItem> {
@@ -152,7 +225,8 @@ class CommentService {
             throw new CommentValidationError("Comment not found!");
         }
 
-        return this.mapRow(updated, userSub);
+        const authorMap = await this.getAuthorNameMap([updated.user_sub]);
+        return this.mapRow(updated, userSub, authorMap.get(updated.user_sub));
     }
 
     async deleteComment(commentId: string, userSub: string): Promise<void> {
@@ -181,7 +255,8 @@ class CommentService {
             throw new CommentValidationError("Comment not found!");
         }
 
-        return this.mapRow(updated, userSub);
+        const authorMap = await this.getAuthorNameMap([updated.user_sub]);
+        return this.mapRow(updated, userSub, authorMap.get(updated.user_sub));
     }
 
     // async reportComment(body: unknown, userSub: string): Promise<{ deleted: boolean; comment: CommentTreeItem | null }> {

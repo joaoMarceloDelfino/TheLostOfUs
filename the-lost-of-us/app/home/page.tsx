@@ -8,9 +8,6 @@ import SightingCard from "@/app/components/home/SightingCard";
 import { useEffect, useState } from "react";
 import { getPosts, PostApiResponse } from "@/lib/apiClient";
 import { formatLocationDisplay } from "@/lib/location";
-import { useEffect, useState } from "react";
-import { getPosts, PostApiResponse } from "@/lib/apiClient";
-import { formatLocationDisplay } from "@/lib/location";
 
 const actions = [
   {
@@ -42,9 +39,6 @@ const actions = [
 
 
 export default function HomePage() {
-  const [posts, setPosts] = useState<PostApiResponse[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     setLoading(true);
@@ -63,18 +57,6 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    setLoading(true);
-    getPosts()
-      .then((data) => {
-        setPosts(data);
-        setLoading(false);
-      })
-      .catch(() => {
-        setError("Erro ao carregar posts");
-        setLoading(false);
-      });
-  }, []);
 
   return (
     <main className={styles.page}>
@@ -95,7 +77,6 @@ export default function HomePage() {
         </section>
 
         <section className={styles.sightingsSection}>
-          <h2 className={styles.sectionTitle}>Ultimas Ocorrências</h2>
           <h2 className={styles.sectionTitle}>Ultimas Ocorrências</h2>
 
           <div className={styles.sightingsGrid}>

@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useAuth } from "@clerk/nextjs";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "./SightingCard.module.css";
 import {
   CommentApiResponse,
@@ -23,12 +23,11 @@ type SightingCardProps = {
   name: string;
   authorName?: string;
   description?: string;
-  authorName?: string;
-  description?: string;
   location: string;
   date: string;
   status: string;
   rawLastSeenDate?: string | Date | null;
+  allowCommentActions?: boolean;
 };
 
 type CommentItemProps = {
@@ -48,6 +47,7 @@ type CommentItemProps = {
   onEditSubmit: (commentId: string) => Promise<void>;
   onDelete: (commentId: string) => Promise<void>;
   onVote: (commentId: string, value: 1 | -1) => Promise<void>;
+  allowCommentActions: boolean;
   // onReport: (commentId: string) => Promise<void>;
 };
 
@@ -68,25 +68,22 @@ function CommentItem({
   onEditSubmit,
   onDelete,
   onVote,
+  allowCommentActions,
 }: CommentItemProps) {
   const isEditing = activeEditId === comment.id;
   const isReplying = activeReplyTo === comment.id;
-  const authorLabel = useMemo(() => {
-    const tail = comment.userSub.slice(-6);
-    return `Usuário ${tail}`;
-  }, [comment.userSub]);
 
   return (
     <div className={styles.commentItem} style={{ marginLeft: depth > 0 ? 18 : 0 }}>
       <div className={styles.commentHeader}>
-        <strong>{authorLabel}</strong>
+        <strong>{comment.authorName}</strong>
         <span className={styles.commentMeta}>• {formatRelativeTime(comment.createdAt)}</span>
         {comment.updatedAt && new Date(comment.updatedAt).getTime() !== new Date(comment.createdAt).getTime() && (
           <span className={styles.commentMeta}>(editado)</span>
         )}
       </div>
 
-      {isEditing ? (
+      {allowCommentActions && isEditing ? (
         <div className={styles.commentFormInline}>
           <textarea
             value={editText}
@@ -103,27 +100,29 @@ function CommentItem({
         <p className={styles.commentText}>{comment.commentText}</p>
       )}
 
-      <div className={styles.commentToolbar}>
-        <button
-          className={comment.userVote === 1 ? styles.activeVoteButton : styles.voteButton}
-          onClick={() => onVote(comment.id, 1)}
-        >
-          👍 {comment.likesCount}
-        </button>
-        <button
-          className={comment.userVote === -1 ? styles.activeVoteButton : styles.voteButton}
-          onClick={() => onVote(comment.id, -1)}
-        >
-          👎 {comment.dislikesCount}
-        </button>
-        <button className={styles.textButton} onClick={() => onReplyStart(comment.id)}>Responder</button>
-        {comment.canEdit && <button className={styles.textButton} onClick={() => onEditStart(comment)}>Editar</button>}
-        {comment.canDelete && <button className={styles.textButtonDanger} onClick={() => onDelete(comment.id)}>Excluir</button>}
-        {/* Denúncia de comentário desativada por enquanto. */}
-        {/* <button className={styles.textButton} onClick={() => onReport(comment.id)}>Denunciar</button> */}
-      </div>
+      {allowCommentActions && (
+        <div className={styles.commentToolbar}>
+          <button
+            className={comment.userVote === 1 ? styles.activeVoteButton : styles.voteButton}
+            onClick={() => onVote(comment.id, 1)}
+          >
+            👍 {comment.likesCount}
+          </button>
+          <button
+            className={comment.userVote === -1 ? styles.activeVoteButton : styles.voteButton}
+            onClick={() => onVote(comment.id, -1)}
+          >
+            👎 {comment.dislikesCount}
+          </button>
+          <button className={styles.textButton} onClick={() => onReplyStart(comment.id)}>Responder</button>
+          {comment.canEdit && <button className={styles.textButton} onClick={() => onEditStart(comment)}>Editar</button>}
+          {comment.canDelete && <button className={styles.textButtonDanger} onClick={() => onDelete(comment.id)}>Excluir</button>}
+          {/* Denúncia de comentário desativada por enquanto. */}
+          {/* <button className={styles.textButton} onClick={() => onReport(comment.id)}>Denunciar</button> */}
+        </div>
+      )}
 
-      {isReplying && (
+      {allowCommentActions && isReplying && (
         <div className={styles.commentFormInline}>
           <textarea
             value={replyText}
@@ -159,6 +158,7 @@ function CommentItem({
               onEditSubmit={onEditSubmit}
               onDelete={onDelete}
               onVote={onVote}
+              allowCommentActions={allowCommentActions}
             />
           ))}
         </div>
@@ -174,11 +174,10 @@ export default function SightingCard({
   name,
   authorName,
   description,
-  authorName,
-  description,
   location,
   date,
   status,
+  allowCommentActions = true,
 }: SightingCardProps) {
   const { isSignedIn } = useAuth();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -299,17 +298,12 @@ export default function SightingCard({
       <div className={styles.imageWrapper}>
         <Image
           src={currentImage}
-          src={currentImage}
           alt={imageAlt}
           width={198}
           height={135}
           className={styles.image}
         />
 
-        <div className={styles.badges}>
-          <span className={styles.statusBadge}>{status}</span>
-        </div>
-
         {hasMultipleImages && (
           <>
             <button
@@ -337,30 +331,6 @@ export default function SightingCard({
         <div className={styles.badges}>
           <span className={styles.statusBadge}>{status}</span>
         </div>
-
-        {hasMultipleImages && (
-          <>
-            <button
-              type="button"
-              onClick={handlePrevious}
-              className={`${styles.carouselButton} ${styles.carouselLeft}`}
-              aria-label="Imagem anterior"
-            >
-              ‹
-            </button>
-            <button
-              type="button"
-              onClick={handleNext}
-              className={`${styles.carouselButton} ${styles.carouselRight}`}
-              aria-label="Próxima imagem"
-            >
-              ›
-            </button>
-            <div className={styles.carouselCounter}>
-              {currentImageIndex + 1} / {images.length}
-            </div>
-          </>
-        )}
       </div>
 
       <header className={styles.header}>
@@ -370,11 +340,11 @@ export default function SightingCard({
 
       <section className={styles.keyInfo}>
         <div className={styles.infoItem}>
-          <span className={styles.infoLabel}>Último avistamento</span>
+          <span className={styles.infoLabel}>Data do Último avistamento</span>
           <span className={styles.infoValue}>{date}</span>
         </div>
         <div className={styles.infoItem}>
-          <span className={styles.infoLabel}>Localização</span>
+          <span className={styles.infoLabel}>Localização do Último Avistamento</span>
           <span className={styles.infoValue}>{location}</span>
         </div>
       </section>
@@ -391,7 +361,7 @@ export default function SightingCard({
 
         {commentsOpen && (
           <>
-            {isSignedIn && (
+            {allowCommentActions && isSignedIn && (
               <div className={styles.commentComposer}>
                 <textarea
                   className={styles.commentTextarea}
@@ -403,7 +373,6 @@ export default function SightingCard({
               </div>
             )}
 
-            {!isSignedIn && <p className={styles.commentInfo}>Faça login para comentar.</p>}
             {commentError && <p className={styles.commentError}>{commentError}</p>}
             {loadingComments ? (
               <p className={styles.commentInfo}>Carregando comentários...</p>
@@ -444,6 +413,7 @@ export default function SightingCard({
                     onEditSubmit={handleEditSubmit}
                     onDelete={handleDeleteComment}
                     onVote={handleVoteComment}
+                    allowCommentActions={allowCommentActions}
                   />
                 ))}
               </div>

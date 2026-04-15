@@ -166,7 +166,7 @@ export default function EditPostModal({
                 bottom: 0,
                 background: "rgba(0,0,0,0.35)",
                 display: "flex",
-                alignItems: "center",
+                alignItems: "flex-start",
                 justifyContent: "center",
                 zIndex: 1100,
                 padding: 16,
@@ -181,6 +181,8 @@ export default function EditPostModal({
                     padding: 28,
                     maxWidth: 460,
                     width: "100%",
+                    maxHeight: "calc(100vh - 32px)",
+                    overflowY: "auto",
                 }}
             >
                 <h2 style={{ fontSize: 24, fontWeight: 700, marginBottom: 24, textAlign: "center", color: "#222" }}>Editar Ocorrencia</h2>
@@ -250,7 +252,7 @@ export default function EditPostModal({
                 </div>
 
                 <div style={{ marginBottom: 20 }}>
-                    <label style={{ display: "block", fontWeight: 600, marginBottom: 8, color: "#222" }}>Localização no mapa</label>
+                    <label style={{ display: "block", fontWeight: 600, marginBottom: 8, color: "#222" }}>Localização do Último Avistamento</label>
                     <LocationPicker value={selectedLocation} onChange={setSelectedLocation} />
                 </div>
 

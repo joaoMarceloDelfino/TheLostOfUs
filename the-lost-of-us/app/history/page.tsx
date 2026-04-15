@@ -141,6 +141,7 @@ export default function HistoryPage() {
                                             <SightingCard
                                                 postId={post.id}
                                                 postUserSub={post.user_sub}
+                                                allowCommentActions={false}
                                                 imageSrc={imageUris.length > 0 ? imageUris : "/images/animal-1.png"}
                                                 imageAlt={post.pet_name || "Animal avistado"}
                                                 name={post.pet_name || "Sem nome"}
