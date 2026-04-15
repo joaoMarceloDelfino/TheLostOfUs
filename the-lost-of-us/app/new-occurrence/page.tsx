@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import React, { useState } from "react";
 import { useAuth } from "@clerk/nextjs";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -22,27 +21,12 @@ const LocationPicker = dynamic(() => import("@/app/components/location/LocationP
 
 type CreatePostFormInput = z.input<typeof createPostSchema>;
 type CreatePostFormOutput = z.output<typeof createPostSchema>;
-import HomeHeader from "@/app/components/home/HomeHeader";
-import HomeFooter from "@/app/components/home/HomeFooter";
-import styles from "../home/page.module.css";
-import { ArrowUpTrayIcon } from '@heroicons/react/24/solid'
-import dynamic from "next/dynamic";
-import type { LocationCoordinates } from "@/lib/location";
 
-const LocationPicker = dynamic(() => import("@/app/components/location/LocationPicker"), {
-    ssr: false,
-});
-
-
-type CreatePostFormInput = z.input<typeof createPostSchema>;
-type CreatePostFormOutput = z.output<typeof createPostSchema>;
 
 export default function NewOccurrencePage() {
     const { getToken, isSignedIn } = useAuth();
     const [serverError, setServerError] = useState("");
     const [success, setSuccess] = useState(false);
-    const [selectedLocation, setSelectedLocation] = useState<LocationCoordinates | null>(null);
-    const fileInputRef = React.useRef<HTMLInputElement | null>(null);
     const [selectedLocation, setSelectedLocation] = useState<LocationCoordinates | null>(null);
     const fileInputRef = React.useRef<HTMLInputElement | null>(null);
 
@@ -51,9 +35,7 @@ export default function NewOccurrencePage() {
         handleSubmit,
         reset,
         watch,
-        watch,
         formState: { errors, isSubmitting },
-    } = useForm<CreatePostFormInput, unknown, CreatePostFormOutput>({
     } = useForm<CreatePostFormInput, unknown, CreatePostFormOutput>({
         resolver: zodResolver(createPostSchema),
         defaultValues: {
@@ -63,25 +45,9 @@ export default function NewOccurrencePage() {
             lastSeenLatitude: undefined,
             lastSeenLongitude: undefined,
             images: [],
-            lastSeenDate: null,
-            lastSeenLatitude: undefined,
-            lastSeenLongitude: undefined,
-            images: [],
         },
     });
 
-    const {
-        ref: registerImagesRef,
-        onChange: onImagesChange,
-        name: imagesName,
-        ...imagesInputProps
-    } = register("images");
-    const selectedImages = watch("images") as File[] | FileList | undefined;
-    const selectedImagesCount = Array.isArray(selectedImages)
-        ? selectedImages.length
-        : selectedImages?.length ?? 0;
-
-    const onSubmit = async (data: CreatePostFormOutput) => {
     const {
         ref: registerImagesRef,
         onChange: onImagesChange,
@@ -102,22 +68,8 @@ export default function NewOccurrencePage() {
             return;
         }
 
-
-        if (!selectedLocation) {
-            setServerError("Selecione a localização no mapa.");
-            return;
-        }
-
         try {
             const token = await getToken();
-            await createPost(
-                {
-                    ...data,
-                    lastSeenLatitude: selectedLocation.latitude,
-                    lastSeenLongitude: selectedLocation.longitude,
-                },
-                token || undefined
-            );
             await createPost(
                 {
                     ...data,
@@ -137,29 +89,11 @@ export default function NewOccurrencePage() {
                 setServerError("Erro ao criar ocorrência");
             }
             setSelectedLocation(null);
-        } catch (error: unknown) {
-            if (typeof error === "object" && error !== null && "response" in error) {
-                const response = error as { response?: { data?: { error?: string } } };
-                setServerError(response.response?.data?.error || "Erro ao criar ocorrência");
-            } else {
-                setServerError("Erro ao criar ocorrência");
-            }
-        }
+        } 
     };
 
     if (!isSignedIn) {
         return (
-            <>
-                <HomeHeader />
-                <main className={styles.page} style={{ background: "#fff", minHeight: "calc(100vh - 160px)" }}>
-                    <div className={styles.container} style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: 400 }}>
-                        <div style={{ background: "#fff", borderRadius: 12, boxShadow: "0 2px 12px #0001", padding: 32, maxWidth: 420, width: "100%", textAlign: "center" }}>
-                            <p style={{ fontSize: 18, color: "#222" }}>Você precisa estar logado para criar uma ocorrência.</p>
-                        </div>
-                    </div>
-                </main>
-                <HomeFooter />
-            </>
             <>
                 <HomeHeader />
                 <main className={styles.page} style={{ background: "#fff", minHeight: "calc(100vh - 160px)" }}>
@@ -326,3 +260,4 @@ export default function NewOccurrencePage() {
         </>
     );
 }
+
