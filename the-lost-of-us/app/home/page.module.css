@@ -36,6 +36,36 @@
   margin-bottom: 18px;
 }
 
+.searchBar {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 420px;
+  margin-bottom: 18px;
+}
+
+.searchLabel {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111111;
+}
+
+.searchInput {
+  width: 100%;
+  border: 1px solid #d0d5dd;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #111111;
+  font-size: 15px;
+  padding: 12px 14px;
+  outline: none;
+}
+
+.searchInput:focus {
+  border-color: #5a98eb;
+  box-shadow: 0 0 0 3px rgba(90, 152, 235, 0.16);
+}
+
 .sightingsGrid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
