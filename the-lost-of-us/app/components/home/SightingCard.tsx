@@ -9,7 +9,7 @@ import {
   createComment,
   deleteComment,
   getComments,
-  // reportComment,
+  reportComment,
   updateComment,
   voteComment,
 } from "@/lib/apiClient";
@@ -48,8 +48,8 @@ type CommentItemProps = {
   onEditSubmit: (commentId: string) => Promise<void>;
   onDelete: (commentId: string) => Promise<void>;
   onVote: (commentId: string, value: 1 | -1) => Promise<void>;
+  onReport: (commentId: string) => Promise<void>;
   allowCommentActions: boolean;
-  // onReport: (commentId: string) => Promise<void>;
 };
 
 function CommentItem({
@@ -69,6 +69,7 @@ function CommentItem({
   onEditSubmit,
   onDelete,
   onVote,
+  onReport,
   allowCommentActions,
 }: CommentItemProps) {
   const isEditing = activeEditId === comment.id;
@@ -118,8 +119,7 @@ function CommentItem({
           <button className={styles.textButton} onClick={() => onReplyStart(comment.id)}>Responder</button>
           {comment.canEdit && <button className={styles.textButton} onClick={() => onEditStart(comment)}>Editar</button>}
           {comment.canDelete && <button className={styles.textButtonDanger} onClick={() => onDelete(comment.id)}>Excluir</button>}
-          {/* Denúncia de comentário desativada por enquanto. */}
-          {/* <button className={styles.textButton} onClick={() => onReport(comment.id)}>Denunciar</button> */}
+          <button className={styles.textButton} onClick={() => onReport(comment.id)}>Denunciar</button>
         </div>
       )}
 
@@ -159,6 +159,7 @@ function CommentItem({
               onEditSubmit={onEditSubmit}
               onDelete={onDelete}
               onVote={onVote}
+              onReport={onReport}
               allowCommentActions={allowCommentActions}
             />
           ))}
@@ -192,6 +193,7 @@ export default function SightingCard({
   const [activeReplyTo, setActiveReplyTo] = useState<string | null>(null);
   const [activeEditId, setActiveEditId] = useState<string | null>(null);
   const [commentError, setCommentError] = useState<string | null>(null);
+  const [commentInfoMessage, setCommentInfoMessage] = useState<string | null>(null);
   const images = Array.isArray(imageSrc) ? imageSrc : [imageSrc];
   const currentImage = images[currentImageIndex];
   const hasMultipleImages = images.length > 1;
@@ -199,6 +201,7 @@ export default function SightingCard({
   const loadComments = async () => {
     setLoadingComments(true);
     setCommentError(null);
+    setCommentInfoMessage(null);
     try {
       const data = await getComments(postId);
       setComments(data);
@@ -282,18 +285,19 @@ export default function SightingCard({
     }
   };
 
-  // Denúncia de comentário desativada por enquanto.
-  // const handleReportComment = async (commentId: string) => {
-  //   try {
-  //     const result = await reportComment({ commentId });
-  //     if (result.deleted) {
-  //       setCommentError("Comentário removido automaticamente após atingir o limite de denúncias.");
-  //     }
-  //     await loadComments();
-  //   } catch {
-  //     setCommentError("Não foi possível denunciar esse comentário.");
-  //   }
-  // };
+  const handleReportComment = async (commentId: string) => {
+    try {
+      const result = await reportComment({ commentId });
+      await loadComments();
+      setCommentInfoMessage(
+        result.created
+          ? "Comentário denunciado."
+          : "Você já denunciou esse comentário."
+      );
+    } catch {
+      setCommentError("Não foi possível denunciar esse comentário.");
+    }
+  };
 
   return (
     <article className={styles.card}>
@@ -377,6 +381,7 @@ export default function SightingCard({
             )}
 
             {commentError && <p className={styles.commentError}>{commentError}</p>}
+            {commentInfoMessage && <p className={styles.commentInfo}>{commentInfoMessage}</p>}
             {loadingComments ? (
               <p className={styles.commentInfo}>Carregando comentários...</p>
             ) : comments.length === 0 ? (
@@ -416,6 +421,7 @@ export default function SightingCard({
                     onEditSubmit={handleEditSubmit}
                     onDelete={handleDeleteComment}
                     onVote={handleVoteComment}
+                    onReport={handleReportComment}
                     allowCommentActions={allowCommentActions}
                   />
                 ))}

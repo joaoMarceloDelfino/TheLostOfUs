@@ -90,11 +90,10 @@ export async function PATCH(req: NextRequest) {
             return NextResponse.json(comment, { status: 200 });
         }
 
-        // Denúncia de comentário desativada por enquanto.
-        // if (action === "report") {
-        //     const result = await CommentService.reportComment(body, userId);
-        //     return NextResponse.json(result, { status: 200 });
-        // }
+        if (action === "report") {
+            const result = await CommentService.reportComment(body, userId);
+            return NextResponse.json(result, { status: 200 });
+        }
 
         return NextResponse.json({ error: "Invalid action" }, { status: 400 });
     } catch (error) {

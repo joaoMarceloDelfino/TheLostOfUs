@@ -195,58 +195,37 @@ class CommentRepository {
         return this.findById(commentId, userSub);
     }
 
-    // async report(commentId: string, userSub: string, reason?: string | null): Promise<{ deleted: boolean; comment: CommentRow | null }> {
-    //     let deleted = false;
-    //
-    //     await prismaClient.$transaction(async (tx) => {
-    //         const existing = await tx.$queryRaw<Array<{ id: string }>>(Prisma.sql`
-    //             SELECT id
-    //             FROM comment_reports
-    //             WHERE comment_id = ${commentId}::uuid AND user_sub = ${userSub}
-    //             LIMIT 1
-    //         `);
-    //
-    //         if (!existing.length) {
-    //             await tx.$executeRaw(Prisma.sql`
-    //                 INSERT INTO comment_reports (id, comment_id, user_sub, reason, created_at)
-    //                 VALUES (gen_random_uuid(), ${commentId}::uuid, ${userSub}, ${reason ?? null}, NOW())
-    //             `);
-    //         }
-    //
-    //         await tx.$executeRaw(Prisma.sql`
-    //             UPDATE comments c
-    //             SET reports_count = COALESCE(r.reports_count, 0),
-    //                 updated_at = NOW()
-    //             FROM (
-    //                 SELECT comment_id, COUNT(*)::integer AS reports_count
-    //                 FROM comment_reports
-    //                 WHERE comment_id = ${commentId}::uuid
-    //                 GROUP BY comment_id
-    //             ) r
-    //             WHERE c.id = ${commentId}::uuid
-    //         `);
-    //
-    //         const reportRows = await tx.$queryRaw<Array<{ reports_count: number }>>(Prisma.sql`
-    //             SELECT reports_count
-    //             FROM comments
-    //             WHERE id = ${commentId}::uuid
-    //             LIMIT 1
-    //         `);
-    //
-    //         const reportCount = reportRows[0]?.reports_count ?? 0;
-    //         if (reportCount >= 30) {
-    //             await tx.$executeRaw(Prisma.sql`
-    //                 DELETE FROM comments WHERE id = ${commentId}::uuid
-    //             `);
-    //             deleted = true;
-    //         }
-    //     });
-    //
-    //     return {
-    //         deleted,
-    //         comment: deleted ? null : await this.findById(commentId, userSub),
-    //     };
-    // }
+    async report(commentId: string, userSub: string, reason?: string | null): Promise<{ created: boolean; comment: CommentRow | null }> {
+        let created = false;
+
+        await prismaClient.$transaction(async (tx) => {
+            const inserted = await tx.$queryRaw<Array<{ id: string }>>(Prisma.sql`
+                INSERT INTO comment_reports (id, comment_id, user_sub, reason, created_at)
+                VALUES (gen_random_uuid(), ${commentId}::uuid, ${userSub}, ${reason ?? null}, NOW())
+                ON CONFLICT (comment_id, user_sub) DO NOTHING
+                RETURNING id::text
+            `);
+            created = inserted.length > 0;
+
+            await tx.$executeRaw(Prisma.sql`
+                UPDATE comments c
+                SET reports_count = COALESCE(r.reports_count, 0),
+                    updated_at = NOW()
+                FROM (
+                    SELECT comment_id, COUNT(*)::integer AS reports_count
+                    FROM comment_reports
+                    WHERE comment_id = ${commentId}::uuid
+                    GROUP BY comment_id
+                ) r
+                WHERE c.id = ${commentId}::uuid
+            `);
+        });
+
+        return {
+            created,
+            comment: await this.findById(commentId, userSub),
+        };
+    }
 }
 
 export default new CommentRepository();

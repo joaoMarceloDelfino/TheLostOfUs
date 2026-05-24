@@ -2,7 +2,7 @@ import CommentRepository, { CommentRow } from "@/repositories/CommentRepository"
 import { CreateCommentSchema, parseCreateCommentBodyWithZod } from "@/schemas/createComment.schema";
 import { parseUpdateCommentBodyWithZod } from "@/schemas/updateComment.schema";
 import { parseCommentVoteBodyWithZod } from "@/schemas/commentVote.schema";
-// import { parseCommentReportBodyWithZod } from "@/schemas/commentReport.schema";
+import { parseCommentReportBodyWithZod } from "@/schemas/commentReport.schema";
 import { clerkClient } from "@clerk/nextjs/server";
 import PostService from "./PostService";
 
@@ -259,20 +259,28 @@ class CommentService {
         return this.mapRow(updated, userSub, authorMap.get(updated.user_sub));
     }
 
-    // async reportComment(body: unknown, userSub: string): Promise<{ deleted: boolean; comment: CommentTreeItem | null }> {
-    //     const parsedBody = this.parseValidation(parseCommentReportBodyWithZod, body);
-    //     const comment = await CommentRepository.findById(parsedBody.commentId, userSub);
-    //
-    //     if (!comment) {
-    //         throw new CommentValidationError("Comment not found!");
-    //     }
-    //
-    //     const result = await CommentRepository.report(parsedBody.commentId, userSub, parsedBody.reason ?? null);
-    //     return {
-    //         deleted: result.deleted,
-    //         comment: result.comment ? this.mapRow(result.comment, userSub) : null,
-    //     };
-    // }
+    async reportComment(body: unknown, userSub: string): Promise<{ created: boolean; comment: CommentTreeItem | null }> {
+        const parsedBody = this.parseValidation(parseCommentReportBodyWithZod, body);
+        const comment = await CommentRepository.findById(parsedBody.commentId, userSub);
+
+        if (!comment) {
+            throw new CommentValidationError("Comment not found!");
+        }
+
+        const result = await CommentRepository.report(parsedBody.commentId, userSub, parsedBody.reason ?? null);
+        if (!result.comment) {
+            return {
+                created: result.created,
+                comment: null,
+            };
+        }
+
+        const authorMap = await this.getAuthorNameMap([result.comment.user_sub]);
+        return {
+            created: result.created,
+            comment: this.mapRow(result.comment, userSub, authorMap.get(result.comment.user_sub)),
+        };
+    }
 }
 
 export default new CommentService();
