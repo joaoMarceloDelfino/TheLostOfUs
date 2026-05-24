@@ -27,6 +27,7 @@ type SightingCardProps = {
   date: string;
   status: string;
   rawLastSeenDate?: string | Date | null;
+  createdAt?: string | Date | null;
   allowCommentActions?: boolean;
 };
 
@@ -177,6 +178,7 @@ export default function SightingCard({
   location,
   date,
   status,
+  createdAt,
   allowCommentActions = true,
 }: SightingCardProps) {
   const { isSignedIn } = useAuth();
@@ -336,6 +338,7 @@ export default function SightingCard({
       <header className={styles.header}>
         <h3 className={styles.name}>{name}</h3>
         <p className={styles.author}>Publicado por {authorName || "Autor desconhecido"}</p>
+        {createdAt && <p className={styles.author}>Publicado {formatRelativeTime(createdAt)}</p>}
       </header>
 
       <section className={styles.keyInfo}>

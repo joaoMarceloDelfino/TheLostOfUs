@@ -111,6 +111,7 @@ export default function HomePage() {
                     date={post.last_seen_date ? new Date(post.last_seen_date).toLocaleDateString("pt-BR") : "Não informada"}
                     status={"Desaparecido"}
                     rawLastSeenDate={post.last_seen_date}
+                    createdAt={post.created_at}
                   />
                 );
               })

@@ -151,6 +151,7 @@ export default function HistoryPage() {
                                                 date={post.last_seen_date ? new Date(post.last_seen_date).toLocaleDateString("pt-BR") : "Não informada"}
                                                 status={"Desaparecido"}
                                                 rawLastSeenDate={post.last_seen_date}
+                                                createdAt={post.created_at}
                                             />
                                             <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
                                                 <button style={{ background: "#5a98eb", color: "#fff", border: "none", borderRadius: 4, padding: "4px 10px", cursor: "pointer" }} onClick={() => handleEditClick(post)}>Editar</button>
