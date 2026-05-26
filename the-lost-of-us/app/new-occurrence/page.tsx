@@ -12,6 +12,7 @@ import HomeFooter from "@/app/components/home/HomeFooter";
 import styles from "../home/page.module.css";
 import { ArrowUpTrayIcon } from '@heroicons/react/24/solid'
 import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
 import type { LocationCoordinates } from "@/lib/location";
 
 const LocationPicker = dynamic(() => import("@/app/components/location/LocationPicker"), {
@@ -25,6 +26,7 @@ type CreatePostFormOutput = z.output<typeof createPostSchema>;
 
 export default function NewOccurrencePage() {
     const { getToken, isSignedIn } = useAuth();
+    const router = useRouter();
     const [serverError, setServerError] = useState("");
     const [success, setSuccess] = useState(false);
     const [selectedLocation, setSelectedLocation] = useState<LocationCoordinates | null>(null);
@@ -81,6 +83,7 @@ export default function NewOccurrencePage() {
             setSuccess(true);
             reset();
             setSelectedLocation(null);
+            router.push("/home");
         } catch (error: unknown) {
             if (typeof error === "object" && error !== null && "response" in error) {
                 const response = error as { response?: { data?: { error?: string } } };
