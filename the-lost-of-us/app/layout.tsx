@@ -1,4 +1,5 @@
 import { ClerkProvider } from "@clerk/nextjs";
+import ThemeProvider from "@/app/components/theme/ThemeProvider";
 import "leaflet/dist/leaflet.css";
 import "./globals.css";
 
@@ -8,9 +9,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-BR">
+    <html lang="pt-BR" suppressHydrationWarning>
       <body>
-        <ClerkProvider>{children}</ClerkProvider>
+        <ClerkProvider>
+          <ThemeProvider>{children}</ThemeProvider>
+        </ClerkProvider>
       </body>
     </html>
   );

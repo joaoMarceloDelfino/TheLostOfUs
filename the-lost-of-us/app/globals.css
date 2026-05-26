@@ -1,5 +1,57 @@
 @import "tailwindcss";
 
+:root {
+  color-scheme: light;
+  --page-bg: #f3f4f6;
+  --page-bg-soft: #efefef;
+  --surface-bg: #ffffff;
+  --surface-muted: #f2f4f7;
+  --text-main: #111111;
+  --text-body: #1f2937;
+  --text-muted: #667085;
+  --border-soft: #eaecf0;
+  --border-input: #d0d5dd;
+  --brand-bg: #0a3f86;
+  --brand-text: #ffffff;
+  --primary: #5a98eb;
+  --primary-soft: #f5f9ff;
+  --primary-strong: #2a5ea8;
+  --danger: #b42318;
+  --danger-soft: #fee4e2;
+  --success: #43a047;
+  --input-bg: #ffffff;
+  --shadow-card: 0 8px 18px rgba(0, 0, 0, 0.08);
+  --action-card-text: #111111;
+  --theme-toggle-bg: #f4d35e;
+  --theme-toggle-text: #1f2937;
+}
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --page-bg: #0f172a;
+  --page-bg-soft: #111827;
+  --surface-bg: #1f2937;
+  --surface-muted: #273449;
+  --text-main: #f8fafc;
+  --text-body: #e5e7eb;
+  --text-muted: #cbd5e1;
+  --border-soft: #334155;
+  --border-input: #475569;
+  --brand-bg: #062d63;
+  --brand-text: #ffffff;
+  --primary: #75adff;
+  --primary-soft: #13233d;
+  --primary-strong: #9cc6ff;
+  --danger: #f87171;
+  --danger-soft: #3b1d24;
+  --success: #4ade80;
+  --input-bg: #111827;
+  --shadow-card: 0 8px 22px rgba(0, 0, 0, 0.28);
+  --action-card-text: #111111;
+  --theme-toggle-bg: #75adff;
+  --theme-toggle-text: #0f172a;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -12,8 +64,8 @@ html {
 
 body {
   min-height: 100vh;
-  background: #f3f4f6;
-  color: #1f2937;
+  background: var(--page-bg);
+  color: var(--text-body);
   font-family: Arial, Helvetica, sans-serif;
 }
 
@@ -24,4 +76,15 @@ a {
 
 button {
   font: inherit;
+}
+
+input,
+textarea,
+select {
+  color-scheme: inherit;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #94a3b8;
 }

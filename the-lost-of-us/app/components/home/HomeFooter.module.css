@@ -1,7 +1,7 @@
 .footer {
   width: 100%;
-  background: #0a3f86;
-  color: #ffffff;
+  background: var(--brand-bg);
+  color: var(--brand-text);
 }
 
 .inner {
@@ -23,13 +23,13 @@
 
 .left span {
   font-size: 10px;
-  color: #eef4ff;
+  color: var(--brand-text);
 }
 
 .right span {
   font-size: 12px;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--brand-text);
 }
 
 @media (max-width: 700px) {

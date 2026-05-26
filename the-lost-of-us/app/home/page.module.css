@@ -1,6 +1,7 @@
 .page {
   min-height: calc(100vh - 160px);
-  background: #efefef;
+  background: var(--page-bg-soft);
+  color: var(--text-body);
 }
 
 .container {
@@ -13,7 +14,7 @@
   font-size: 28px;
   line-height: 1.2;
   font-weight: 500;
-  color: #111111;
+  color: var(--text-main);
   margin-bottom: 48px;
 }
 
@@ -32,7 +33,7 @@
 .sectionTitle {
   font-size: 24px;
   font-weight: 500;
-  color: #111111;
+  color: var(--text-main);
   margin-bottom: 18px;
 }
 
@@ -47,22 +48,22 @@
 .searchLabel {
   font-size: 14px;
   font-weight: 600;
-  color: #111111;
+  color: var(--text-main);
 }
 
 .searchInput {
   width: 100%;
-  border: 1px solid #d0d5dd;
+  border: 1px solid var(--border-input);
   border-radius: 8px;
-  background: #ffffff;
-  color: #111111;
+  background: var(--input-bg);
+  color: var(--text-main);
   font-size: 15px;
   padding: 12px 14px;
   outline: none;
 }
 
 .searchInput:focus {
-  border-color: #5a98eb;
+  border-color: var(--primary);
   box-shadow: 0 0 0 3px rgba(90, 152, 235, 0.16);
 }
 
@@ -82,7 +83,7 @@
   display: inline-block;
   font-size: 140px;
   line-height: 1;
-  color: #1f1f1f;
+  color: var(--text-main);
   font-weight: 200;
   transform: translateY(-8px);
 }

@@ -354,9 +354,14 @@ export default function SightingCard({
           <span className={styles.infoLabel}>Localização do Último Avistamento</span>
           <span className={styles.infoValue}>{location}</span>
         </div>
+
+         <div className={styles.infoItem}>
+          <span className={styles.infoLabel}>Descrição</span>
+          <span className={styles.description}>{description}</span>
+        </div>
       </section>
 
-      {description && <p className={styles.description}>{description}</p>}
+      {/* {description && <p className={styles.description}>{description}</p>} */}
 
       <div className={styles.commentsBlock}>
         <div className={styles.commentsHeader}>
