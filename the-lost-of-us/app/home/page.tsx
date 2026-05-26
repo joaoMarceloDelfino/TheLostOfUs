@@ -16,6 +16,7 @@ const actions = [
     title: "PERDI MEU PET –",
     description: "Cadastrar anuncio de desaparecimento",
     backgroundColor: "#ecd789",
+    href: "/new-occurrence",
   },
   {
     imageSrc: "/images/localizacao.png",
@@ -30,6 +31,7 @@ const actions = [
     title: "MEUS ALERTAS",
     description: "• Gerenciar seus anuncios ativos",
     backgroundColor: "#98ea84",
+    href: "/history",
   },
 ];
 
@@ -95,6 +97,7 @@ export default function HomePage() {
               title={action.title}
               description={action.description}
               backgroundColor={action.backgroundColor}
+              href={action.href}
             />
           ))}
         </section>

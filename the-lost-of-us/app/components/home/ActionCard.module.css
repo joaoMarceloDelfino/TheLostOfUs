@@ -9,6 +9,16 @@
   align-items: center;
   text-align: center;
   box-shadow: var(--shadow-card);
+  text-decoration: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+a.card {
+  cursor: pointer;
+}
+
+a.card:hover {
+  transform: translateY(-2px);
 }
 
 .imageWrapper {
