@@ -196,6 +196,18 @@ function SightingItem({ sighting }: SightingItemProps) {
         <strong>{sighting.authorName || "Autor desconhecido"}</strong>
         <span className={styles.sightingMeta}>• {formatRelativeTime(sighting.reported_at)}</span>
       </div>
+      {sighting.images && sighting.images.length > 0 && (
+        <div style={{ display: "flex", gap: 8, margin: "8px 0", flexWrap: "wrap" }}>
+          {sighting.images.map(img => (
+            <img
+              key={img.id}
+              src={img.image_uri}
+              alt="Avistamento"
+              style={{ width: 80, height: 80, objectFit: "cover", borderRadius: 8, border: "1px solid #ccc" }}
+            />
+          ))}
+        </div>
+      )}
       {sighting.description?.trim() ? (
         <p className={styles.sightingBody}>{sighting.description}</p>
       ) : (
@@ -351,7 +363,7 @@ const SightingCard = ({
     }
   };
 
-  const handleCreateSighting = async (payload: { description: string | null; location: LocationCoordinates }) => {
+  const handleCreateSighting = async (payload: { description: string | null; location: LocationCoordinates; images?: string[] }) => {
     setSightingSaving(true);
     setSightingError(null);
 
@@ -360,6 +372,7 @@ const SightingCard = ({
         postId,
         description: payload.description,
         location: payload.location,
+        images: payload.images,
       });
       setSightingOpen(false);
     } catch {
@@ -448,21 +461,20 @@ const SightingCard = ({
       {/* {description && <p className={styles.description}>{description}</p>} */}
 
       <div className={styles.sightingActions}>
-        <button
-          type="button"
-          className={styles.sightingButton}
-          onClick={() => setSightingOpen(true)}
-          disabled={!!(!isSignedIn || (userId && postUserSub && userId === postUserSub))}
-        >
-          Registrar avistamento
-        </button>
-        {!isSignedIn && (
-          <p className={styles.sightingHint}>Faça login para registrar um avistamento.</p>
-        )}
-        {isSignedIn && userId && postUserSub && userId === postUserSub && (
-          <p className={styles.sightingHint} style={{ color: '#b42318', fontWeight: 600 }}>
-            Você não pode registrar avistamento no seu próprio post.
-          </p>
+        {isSignedIn && userId && postUserSub && userId === postUserSub ? null : (
+          <>
+            <button
+              type="button"
+              className={styles.sightingButton}
+              onClick={() => setSightingOpen(true)}
+              disabled={!isSignedIn}
+            >
+              Registrar avistamento
+            </button>
+            {!isSignedIn && (
+              <p className={styles.sightingHint}>Faça login para registrar um avistamento.</p>
+            )}
+          </>
         )}
       </div>
 
@@ -568,7 +580,7 @@ const SightingCard = ({
                     onEditSubmit={handleEditSubmit}
                     onDelete={handleDeleteComment}
                     onVote={handleVoteComment}
-                    onReport={handleReportComment}
+                    onReport={userId && postUserSub && userId === postUserSub ? undefined : handleReportComment}
                     allowCommentActions={allowCommentActions}
                   />
                 ))}

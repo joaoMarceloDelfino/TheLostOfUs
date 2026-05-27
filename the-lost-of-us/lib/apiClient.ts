@@ -49,6 +49,7 @@ export type SightingApiResponse = {
     location_longitude: number | null;
     locationLabel: string | null;
     authorName?: string;
+    images?: Array<{ id: string; image_uri: string }>;
 };
 
 const api = axios.create({
@@ -200,6 +201,7 @@ export async function createSighting(
             latitude: number;
             longitude: number;
         };
+        images?: string[];
     },
     token?: string
 ) {

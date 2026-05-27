@@ -140,6 +140,7 @@ class SightingService {
             userSub,
             description: parsedBody.description ?? null,
             location: parsedBody.location,
+            images: parsedBody.images ?? [],
         };
 
         const created = await SightingRepository.create(input);

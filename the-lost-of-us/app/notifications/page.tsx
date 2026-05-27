@@ -1,9 +1,11 @@
 "use client";
 
 
+
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { BellIcon, EyeIcon } from "@heroicons/react/24/solid";
+import HomeHeader from "@/app/components/home/HomeHeader";
 
 type Notification = {
     id: string;
@@ -28,6 +30,7 @@ function getTypeIcon(type: string) {
 }
 
 export default function NotificationsPage() {
+
     const [items, setItems] = useState<Notification[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -62,67 +65,70 @@ export default function NotificationsPage() {
     }
 
     return (
-        <main style={{ maxWidth: 600, margin: "0 auto", padding: 24 }}>
-            <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 24 }}>Notificações</h1>
-            {loading && <p>Carregando...</p>}
-            {!loading && items.length === 0 && <p>Sem notificações.</p>}
+        <>
+            <HomeHeader />
+            <main style={{ maxWidth: 600, margin: "0 auto", padding: 24 }}>
+                <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 24 }}>Notificações</h1>
+                {loading && <p>Carregando...</p>}
+                {!loading && items.length === 0 && <p>Sem notificações.</p>}
 
-            <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-                {items.map((n) => (
-                    <div
-                        key={n.id}
-                        style={{
-                            background: n.read ? "#f8f8f8" : "#e6fff3",
-                            border: n.read ? "1px solid #eee" : "1.5px solid #0a7",
-                            borderRadius: 12,
-                            padding: 18,
-                            boxShadow: n.read ? "none" : "0 2px 8px #0a73.08",
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 16,
-                            position: "relative",
-                        }}
-                    >
-                        <div style={{ flexShrink: 0 }}>{getTypeIcon(n.type)}</div>
-                        <div style={{ flex: 1 }}>
-                            <div style={{ fontWeight: 600, fontSize: 16, color: n.read ? "#444" : "#0a7" }}>
-                                {n.type === "SIGHTING" ? "Novo avistamento no seu post!" : n.type}
+                <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+                    {items.map((n) => (
+                        <div
+                            key={n.id}
+                            style={{
+                                background: n.read ? "#f8f8f8" : "#e6fff3",
+                                border: n.read ? "1px solid #eee" : "1.5px solid #0a7",
+                                borderRadius: 12,
+                                padding: 18,
+                                boxShadow: n.read ? "none" : "0 2px 8px #0a73.08",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 16,
+                                position: "relative",
+                            }}
+                        >
+                            <div style={{ flexShrink: 0 }}>{getTypeIcon(n.type)}</div>
+                            <div style={{ flex: 1 }}>
+                                <div style={{ fontWeight: 600, fontSize: 16, color: n.read ? "#444" : "#0a7" }}>
+                                    {n.type === "SIGHTING" ? "Novo avistamento no seu post!" : n.type}
+                                </div>
+                                <div style={{ fontSize: 14, color: "#333", margin: "6px 0" }}>
+                                    {n.data?.description ?? "Sem descrição"}
+                                </div>
+                                <div style={{ fontSize: 12, color: "#888" }}>
+                                    {formatDate(n.created_at)}
+                                    {n.post_id && (
+                                        <>
+                                            {" • "}
+                                            <Link href={`/history`} style={{ color: "#0a7", textDecoration: "underline" }}>
+                                                Ver post
+                                            </Link>
+                                        </>
+                                    )}
+                                </div>
                             </div>
-                            <div style={{ fontSize: 14, color: "#333", margin: "6px 0" }}>
-                                {n.data?.description ?? "Sem descrição"}
-                            </div>
-                            <div style={{ fontSize: 12, color: "#888" }}>
-                                {formatDate(n.created_at)}
-                                {n.post_id && (
-                                    <>
-                                        {" • "}
-                                        <Link href={`/history`} style={{ color: "#0a7", textDecoration: "underline" }}>
-                                            Ver post
-                                        </Link>
-                                    </>
-                                )}
-                            </div>
+                            {!n.read && (
+                                <button
+                                    onClick={() => markRead(n.id)}
+                                    style={{
+                                        background: "#0a7",
+                                        color: "#fff",
+                                        border: "none",
+                                        borderRadius: 6,
+                                        padding: "6px 12px",
+                                        fontWeight: 600,
+                                        cursor: "pointer",
+                                        marginLeft: 12,
+                                    }}
+                                >
+                                    Marcar como lida
+                                </button>
+                            )}
                         </div>
-                        {!n.read && (
-                            <button
-                                onClick={() => markRead(n.id)}
-                                style={{
-                                    background: "#0a7",
-                                    color: "#fff",
-                                    border: "none",
-                                    borderRadius: 6,
-                                    padding: "6px 12px",
-                                    fontWeight: 600,
-                                    cursor: "pointer",
-                                    marginLeft: 12,
-                                }}
-                            >
-                                Marcar como lida
-                            </button>
-                        )}
-                    </div>
-                ))}
-            </div>
-        </main>
+                    ))}
+                </div>
+            </main>
+        </>
     );
 }

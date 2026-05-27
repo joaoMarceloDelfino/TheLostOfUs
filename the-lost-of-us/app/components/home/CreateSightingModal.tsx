@@ -11,6 +11,7 @@ const LocationPicker = dynamic(() => import("@/app/components/location/LocationP
 export type CreateSightingSubmitInput = {
     description: string | null;
     location: LocationCoordinates;
+    images?: string[];
 };
 
 type CreateSightingModalProps = {
@@ -35,6 +36,8 @@ export default function CreateSightingModal({
     const [description, setDescription] = useState("");
     const [selectedLocation, setSelectedLocation] = useState<LocationCoordinates | null>(null);
     const [localError, setLocalError] = useState("");
+    const [images, setImages] = useState<File[]>([]);
+    const [imagePreviews, setImagePreviews] = useState<string[]>([]);
 
     useEffect(() => {
         if (!open) {
@@ -44,10 +47,35 @@ export default function CreateSightingModal({
         setDescription("");
         setSelectedLocation(initialLocation ?? null);
         setLocalError("");
+        setImages([]);
+        setImagePreviews([]);
     }, [open, initialLocation]);
+
+    useEffect(() => {
+        if (images.length > 0) {
+            const urls = images.map((file) => URL.createObjectURL(file));
+            setImagePreviews(urls);
+            return () => urls.forEach((url) => URL.revokeObjectURL(url));
+        } else {
+            setImagePreviews([]);
+        }
+    }, [images]);
 
     if (!open) {
         return null;
+    }
+
+    // Upload local para public/images/sighting-images
+    async function uploadImages(files: File[]): Promise<string[]> {
+        const formData = new FormData();
+        files.forEach(file => formData.append("images", file));
+        const res = await fetch("/api/sighting/upload", {
+            method: "POST",
+            body: formData,
+        });
+        if (!res.ok) throw new Error("Falha ao enviar imagens");
+        const data = await res.json();
+        return data.urls as string[];
     }
 
     const handleSave = async () => {
@@ -57,9 +85,14 @@ export default function CreateSightingModal({
         }
 
         setLocalError("");
+        let imageUrls: string[] = [];
+        if (images.length > 0) {
+            imageUrls = await uploadImages(images);
+        }
         await onSave({
             description: description.trim() ? description.trim() : null,
             location: selectedLocation,
+            images: imageUrls,
         });
     };
 
@@ -121,6 +154,60 @@ export default function CreateSightingModal({
                                 outline: "none",
                             }}
                         />
+                    </div>
+
+                    <div>
+                        <label style={{ display: "block", fontWeight: 600, marginBottom: 8, color: "#101828" }}>
+                            Imagens do avistamento (máx. 5)
+                        </label>
+                        <input
+                            id="sighting-image-input"
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            style={{ display: "none" }}
+                            onChange={e => {
+                                const files = Array.from(e.target.files || []).slice(0, 5);
+                                setImages(files);
+                            }}
+                        />
+                        <button
+                            type="button"
+                            onClick={() => document.getElementById("sighting-image-input")?.click()}
+                            style={{
+                                width: "100%",
+                                border: "1px dashed #5a98eb",
+                                background: "#eaf1fb",
+                                color: "#2563eb",
+                                borderRadius: 8,
+                                padding: "12px 14px",
+                                fontWeight: 600,
+                                fontSize: 15,
+                                cursor: "pointer",
+                                marginBottom: 8
+                            }}
+                        >
+                            <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+                                {/* Heroicons ArrowUpTrayIcon inline SVG */}
+                                <svg style={{ width: 18, height: 18, flexShrink: 0 }} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 16V4m0 0l-4 4m4-4l4 4M4 20h16" /></svg>
+                                <p style={{ margin: 0 }}>Selecionar imagens</p>
+                            </span>
+                        </button>
+                        <div style={{ color: "#667085", fontSize: 13, marginTop: 4 }}>
+                            {images.length > 0 ? `${images.length} imagem(ns) selecionada(s)` : "Nenhuma imagem selecionada"}
+                        </div>
+                        {imagePreviews.length > 0 && (
+                            <div style={{ display: "flex", gap: 8, marginTop: 8, flexWrap: "wrap" }}>
+                                {imagePreviews.map((src, idx) => (
+                                    <img
+                                        key={idx}
+                                        src={src}
+                                        alt={`Preview ${idx + 1}`}
+                                        style={{ width: 80, height: 80, objectFit: "cover", borderRadius: 8, border: "1px solid #ccc" }}
+                                    />
+                                ))}
+                            </div>
+                        )}
                     </div>
 
                     <div>

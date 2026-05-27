@@ -7,6 +7,17 @@ export const createSightingSchema = z.object({
         latitude: z.number({ message: "Invalid latitude." }),
         longitude: z.number({ message: "Invalid longitude." }),
     }),
+    images: z
+        .array(
+            z
+                .string()
+                .min(1, "Invalid image URL.")
+                .refine((value) => value.startsWith("/") || value.startsWith("http"), {
+                    message: "Invalid image URL.",
+                })
+        )
+        .max(5, "Máximo de 5 imagens.")
+        .optional(),
 });
 
 export type CreateSightingSchema = z.infer<typeof createSightingSchema>;
