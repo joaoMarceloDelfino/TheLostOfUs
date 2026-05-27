@@ -79,6 +79,34 @@
   font-size: 0.92rem;
 }
 
+.sightingActions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sightingButton {
+  border: none;
+  border-radius: 12px;
+  padding: 12px 14px;
+  cursor: pointer;
+  background: linear-gradient(135deg, #5a98eb, #3d7ad0);
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0 10px 18px rgba(58, 109, 193, 0.18);
+}
+
+.sightingButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.sightingHint {
+  margin: 0;
+  color: #667085;
+  font-size: 0.88rem;
+}
+
 .keyInfo {
   gap: 10px;
 }
@@ -107,7 +135,15 @@
   gap: 12px;
 }
 
-.commentsHeader, .commentHeader, .commentToolbar, .commentActionsRow {
+.sightingsBlock {
+  border-top: 1px solid #eaecf0;
+  padding-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.commentsHeader, .commentHeader, .commentToolbar, .commentActionsRow, .sightingHeader, .sightingMetaRow {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -159,6 +195,45 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+.sightingsList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sightingItem {
+  border: 1px solid #eaecf0;
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: #fcfcfd;
+}
+
+.sightingBody {
+  margin: 0;
+  color: #101828;
+  line-height: 1.45;
+}
+
+.sightingEmpty {
+  margin: 0;
+  color: #667085;
+  font-size: 0.92rem;
+}
+
+.sightingLocation {
+  margin: 0;
+  color: #475467;
+  font-size: 0.92rem;
+}
+
+.sightingMeta {
+  color: #667085;
+  font-size: 0.88rem;
 }
 
 .commentItem {

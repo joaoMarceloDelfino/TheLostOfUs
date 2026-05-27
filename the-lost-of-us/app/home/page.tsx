@@ -97,6 +97,12 @@ export default function HomePage() {
                       label: post.last_seen_location_label ?? null,
                     }
                   : null;
+                const sightingLocation = hasLocation
+                  ? {
+                      latitude: post.last_seen_location_latitude!,
+                      longitude: post.last_seen_location_longitude!,
+                    }
+                  : null;
                 return (
                   <SightingCard
                     key={post.id || index}
@@ -111,6 +117,7 @@ export default function HomePage() {
                     date={post.last_seen_date ? new Date(post.last_seen_date).toLocaleDateString("pt-BR") : "Não informada"}
                     status={"Desaparecido"}
                     rawLastSeenDate={post.last_seen_date}
+                    initialSightingLocation={sightingLocation}
                   />
                 );
               })

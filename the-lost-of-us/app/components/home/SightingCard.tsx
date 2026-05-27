@@ -4,18 +4,23 @@ import Image from "next/image";
 import { useAuth } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
 import styles from "./SightingCard.module.css";
+import CreateSightingModal from "./CreateSightingModal";
 import {
   CommentApiResponse,
+  createSighting,
   createComment,
   deleteComment,
   getComments,
+  getSightingsByPost,
+  type SightingApiResponse,
   // reportComment,
   updateComment,
   voteComment,
 } from "@/lib/apiClient";
 import { formatRelativeTime } from "@/lib/date";
+import { formatLocationDisplay, type LocationCoordinates, type LocationWithLabel } from "@/lib/location";
 
-type SightingCardProps = {
+interface SightingCardProps {
   postId: string;
   postUserSub?: string;
   imageSrc: string | string[];
@@ -28,7 +33,8 @@ type SightingCardProps = {
   status: string;
   rawLastSeenDate?: string | Date | null;
   allowCommentActions?: boolean;
-};
+  initialSightingLocation?: LocationCoordinates | null;
+}
 
 type CommentItemProps = {
   comment: CommentApiResponse;
@@ -49,6 +55,10 @@ type CommentItemProps = {
   onVote: (commentId: string, value: 1 | -1) => Promise<void>;
   allowCommentActions: boolean;
   // onReport: (commentId: string) => Promise<void>;
+};
+
+type SightingItemProps = {
+  sighting: SightingApiResponse;
 };
 
 function CommentItem({
@@ -167,8 +177,35 @@ function CommentItem({
   );
 }
 
-export default function SightingCard({
+function SightingItem({ sighting }: SightingItemProps) {
+  const location =
+    sighting.location_latitude != null && sighting.location_longitude != null
+      ? {
+          latitude: sighting.location_latitude,
+          longitude: sighting.location_longitude,
+          label: sighting.locationLabel ?? null,
+        }
+      : null;
+
+  return (
+    <div className={styles.sightingItem}>
+      <div className={styles.sightingHeader}>
+        <strong>{sighting.authorName || "Autor desconhecido"}</strong>
+        <span className={styles.sightingMeta}>• {formatRelativeTime(sighting.reported_at)}</span>
+      </div>
+      {sighting.description?.trim() ? (
+        <p className={styles.sightingBody}>{sighting.description}</p>
+      ) : (
+        <p className={styles.sightingEmpty}>Sem descrição.</p>
+      )}
+      <p className={styles.sightingLocation}>{formatLocationDisplay(location as LocationWithLabel | null)}</p>
+    </div>
+  );
+}
+
+const SightingCard = ({
   postId,
+  postUserSub,
   imageSrc,
   imageAlt,
   name,
@@ -178,8 +215,9 @@ export default function SightingCard({
   date,
   status,
   allowCommentActions = true,
-}: SightingCardProps) {
-  const { isSignedIn } = useAuth();
+  initialSightingLocation = null,
+}: SightingCardProps) => {
+  const { isSignedIn, userId } = useAuth();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [comments, setComments] = useState<CommentApiResponse[]>([]);
   const [commentsOpen, setCommentsOpen] = useState(false);
@@ -190,6 +228,13 @@ export default function SightingCard({
   const [activeReplyTo, setActiveReplyTo] = useState<string | null>(null);
   const [activeEditId, setActiveEditId] = useState<string | null>(null);
   const [commentError, setCommentError] = useState<string | null>(null);
+  const [sightings, setSightings] = useState<SightingApiResponse[]>([]);
+  const [sightingsOpen, setSightingsOpen] = useState(false);
+  const [loadingSightings, setLoadingSightings] = useState(false);
+  const [sightingsError, setSightingsError] = useState<string | null>(null);
+  const [sightingOpen, setSightingOpen] = useState(false);
+  const [sightingSaving, setSightingSaving] = useState(false);
+  const [sightingError, setSightingError] = useState<string | null>(null);
   const images = Array.isArray(imageSrc) ? imageSrc : [imageSrc];
   const currentImage = images[currentImageIndex];
   const hasMultipleImages = images.length > 1;
@@ -207,11 +252,31 @@ export default function SightingCard({
     }
   };
 
+  const loadSightings = async () => {
+    setLoadingSightings(true);
+    setSightingsError(null);
+
+    try {
+      const data = await getSightingsByPost(postId);
+      setSightings(data);
+    } catch {
+      setSightingsError("Erro ao carregar avistamentos.");
+    } finally {
+      setLoadingSightings(false);
+    }
+  };
+
   useEffect(() => {
     if (commentsOpen) {
       loadComments();
     }
   }, [commentsOpen, postId]);
+
+  useEffect(() => {
+    if (sightingsOpen) {
+      loadSightings();
+    }
+  }, [sightingsOpen, postId]);
 
   const handlePrevious = () => {
     setCurrentImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
@@ -277,6 +342,24 @@ export default function SightingCard({
       await loadComments();
     } catch {
       setCommentError("Não foi possível registrar seu voto.");
+    }
+  };
+
+  const handleCreateSighting = async (payload: { description: string | null; location: LocationCoordinates }) => {
+    setSightingSaving(true);
+    setSightingError(null);
+
+    try {
+      await createSighting({
+        postId,
+        description: payload.description,
+        location: payload.location,
+      });
+      setSightingOpen(false);
+    } catch {
+      setSightingError("Não foi possível registrar o avistamento.");
+    } finally {
+      setSightingSaving(false);
     }
   };
 
@@ -350,6 +433,64 @@ export default function SightingCard({
       </section>
 
       {description && <p className={styles.description}>{description}</p>}
+
+      <div className={styles.sightingActions}>
+        <button
+          type="button"
+          className={styles.sightingButton}
+          onClick={() => setSightingOpen(true)}
+          disabled={!!(!isSignedIn || (userId && postUserSub && userId === postUserSub))}
+        >
+          Registrar avistamento
+        </button>
+        {!isSignedIn && (
+          <p className={styles.sightingHint}>Faça login para registrar um avistamento.</p>
+        )}
+        {isSignedIn && userId && postUserSub && userId === postUserSub && (
+          <p className={styles.sightingHint} style={{ color: '#b42318', fontWeight: 600 }}>
+            Você não pode registrar avistamento no seu próprio post.
+          </p>
+        )}
+      </div>
+
+      <CreateSightingModal
+        open={sightingOpen}
+        petName={name}
+        initialLocation={initialSightingLocation}
+        saving={sightingSaving}
+        errorMessage={sightingError ?? undefined}
+        onClose={() => {
+          setSightingOpen(false);
+          setSightingError(null);
+        }}
+        onSave={handleCreateSighting}
+      />
+
+      <div className={styles.sightingsBlock}>
+        <div className={styles.commentsHeader}>
+          <strong>Avistamentos</strong>
+          <button className={styles.commentsToggle} onClick={() => setSightingsOpen((prev) => !prev)}>
+            {sightingsOpen ? "Ocultar" : "Abrir"}
+          </button>
+        </div>
+
+        {sightingsOpen && (
+          <>
+            {sightingsError && <p className={styles.commentError}>{sightingsError}</p>}
+            {loadingSightings ? (
+              <p className={styles.commentInfo}>Carregando avistamentos...</p>
+            ) : sightings.length === 0 ? (
+              <p className={styles.sightingEmpty}>Ainda não há avistamentos.</p>
+            ) : (
+              <div className={styles.sightingsList}>
+                {sightings.map((sighting) => (
+                  <SightingItem key={sighting.id} sighting={sighting} />
+                ))}
+              </div>
+            )}
+          </>
+        )}
+      </div>
 
       <div className={styles.commentsBlock}>
         <div className={styles.commentsHeader}>
@@ -426,3 +567,5 @@ export default function SightingCard({
     </article>
   );
 }
+
+export default SightingCard;

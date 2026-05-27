@@ -39,6 +39,18 @@ export type PostApiResponse = {
     authorName?: string;
 };
 
+export type SightingApiResponse = {
+    id: string;
+    post_id: string;
+    user_sub: string;
+    description: string | null;
+    reported_at: string | Date;
+    location_latitude: number | null;
+    location_longitude: number | null;
+    locationLabel: string | null;
+    authorName?: string;
+};
+
 const api = axios.create({
     baseURL: "/api",
     headers: {
@@ -178,6 +190,32 @@ export async function voteComment(data: { commentId: string; value: 1 | -1 }, to
         headers: authHeader(token),
     });
     return response.data as CommentApiResponse;
+}
+
+export async function createSighting(
+    data: {
+        postId: string;
+        description?: string | null;
+        location: {
+            latitude: number;
+            longitude: number;
+        };
+    },
+    token?: string
+) {
+    const response = await api.post("/sighting", data, {
+        headers: authHeader(token),
+    });
+
+    return response.data as SightingApiResponse;
+}
+
+export async function getSightingsByPost(postId: string, token?: string): Promise<SightingApiResponse[]> {
+    const response = await api.get(`/sighting?postId=${postId}`, {
+        headers: authHeader(token),
+    });
+
+    return response.data as SightingApiResponse[];
 }
 
 // Denúncia de comentário desativada por enquanto.
