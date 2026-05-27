@@ -2,10 +2,11 @@
   display: flex;
   flex-direction: column;
   gap: 14px;
-  background: #fff;
+  background: var(--surface-bg);
+  color: var(--text-body);
   border-radius: 16px;
   padding: 16px;
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-card);
 }
 
 .imageWrapper {
@@ -75,7 +76,7 @@
 }
 
 .author, .footerHint, .commentMeta, .commentInfo {
-  color: #667085;
+  color: var(--text-muted);
   font-size: 0.92rem;
 }
 
@@ -119,16 +120,16 @@
 
 .infoLabel {
   font-size: 0.82rem;
-  color: #667085;
+  color: var(--text-muted);
 }
 
 .infoValue {
   font-size: 0.95rem;
-  color: #101828;
+  color: var(--text-main);
 }
 
 .commentsBlock {
-  border-top: 1px solid #eaecf0;
+  border-top: 1px solid var(--border-soft);
   padding-top: 14px;
   display: flex;
   flex-direction: column;
@@ -162,18 +163,18 @@
 }
 
 .commentsToggle, .smallSecondaryButton, .voteButton, .textButton {
-  background: #f2f4f7;
-  color: #101828;
+  background: var(--surface-muted);
+  color: var(--text-main);
 }
 
 .primaryButton, .smallPrimaryButton, .activeVoteButton {
-  background: #5a98eb;
+  background: var(--primary);
   color: #fff;
 }
 
 .textButtonDanger {
-  background: #fee4e2;
-  color: #b42318;
+  background: var(--danger-soft);
+  color: var(--danger);
 }
 
 .commentComposer, .commentFormInline {
@@ -186,7 +187,9 @@
   width: 100%;
   min-height: 82px;
   border-radius: 12px;
-  border: 1px solid #d0d5dd;
+  border: 1px solid var(--border-input);
+  background: var(--input-bg);
+  color: var(--text-body);
   padding: 12px;
   resize: vertical;
 }
@@ -237,7 +240,8 @@
 }
 
 .commentItem {
-  border: 1px solid #eaecf0;
+  border: 1px solid var(--border-soft);
+  background: var(--surface-bg);
   border-radius: 12px;
   padding: 12px;
   display: flex;
@@ -246,13 +250,13 @@
 }
 
 .commentError {
-  color: #b42318;
+  color: var(--danger);
 }
 
 .scoreBadge {
   font-size: 0.82rem;
-  color: #475467;
+  color: var(--text-muted);
   padding: 4px 8px;
-  background: #f8fafc;
+  background: var(--surface-muted);
   border-radius: 999px;
 }

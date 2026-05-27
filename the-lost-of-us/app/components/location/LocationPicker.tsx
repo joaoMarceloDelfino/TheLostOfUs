@@ -88,7 +88,7 @@ export default function LocationPicker({ value, onChange }: LocationPickerProps)
 
     return (
         <div style={{ display: "grid", gap: 10 }}>
-            <div style={{ height: 280, borderRadius: 12, overflow: "hidden", border: "1px solid #d1d5db" }}>
+            <div style={{ height: 280, borderRadius: 12, overflow: "hidden", border: "1px solid var(--border-input)" }}>
                 <MapContainer
                     center={center}
                     zoom={value ? 14 : 4}
@@ -104,7 +104,7 @@ export default function LocationPicker({ value, onChange }: LocationPickerProps)
             </div>
 
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
-                <p style={{ margin: 0, fontSize: 13, color: "#374151" }}>
+                <p style={{ margin: 0, fontSize: 13, color: "var(--text-body)" }}>
                     {locationLabel}
                 </p>
                 <button
@@ -113,7 +113,7 @@ export default function LocationPicker({ value, onChange }: LocationPickerProps)
                     style={{
                         border: "none",
                         background: "transparent",
-                        color: "#2a5ea8",
+                        color: "var(--primary-strong)",
                         fontWeight: 600,
                         cursor: "pointer",
                         padding: 0,

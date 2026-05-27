@@ -12,6 +12,7 @@ import HomeFooter from "@/app/components/home/HomeFooter";
 import styles from "../home/page.module.css";
 import { ArrowUpTrayIcon } from '@heroicons/react/24/solid'
 import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
 import type { LocationCoordinates } from "@/lib/location";
 
 const LocationPicker = dynamic(() => import("@/app/components/location/LocationPicker"), {
@@ -25,6 +26,7 @@ type CreatePostFormOutput = z.output<typeof createPostSchema>;
 
 export default function NewOccurrencePage() {
     const { getToken, isSignedIn } = useAuth();
+    const router = useRouter();
     const [serverError, setServerError] = useState("");
     const [success, setSuccess] = useState(false);
     const [selectedLocation, setSelectedLocation] = useState<LocationCoordinates | null>(null);
@@ -81,6 +83,7 @@ export default function NewOccurrencePage() {
             setSuccess(true);
             reset();
             setSelectedLocation(null);
+            router.push("/home");
         } catch (error: unknown) {
             if (typeof error === "object" && error !== null && "response" in error) {
                 const response = error as { response?: { data?: { error?: string } } };
@@ -96,10 +99,10 @@ export default function NewOccurrencePage() {
         return (
             <>
                 <HomeHeader />
-                <main className={styles.page} style={{ background: "#fff", minHeight: "calc(100vh - 160px)" }}>
+                <main className={styles.page} style={{ background: "var(--page-bg)", minHeight: "calc(100vh - 160px)" }}>
                     <div className={styles.container} style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: 400 }}>
-                        <div style={{ background: "#fff", borderRadius: 12, boxShadow: "0 2px 12px #0001", padding: 32, maxWidth: 420, width: "100%", textAlign: "center" }}>
-                            <p style={{ fontSize: 18, color: "#222" }}>Você precisa estar logado para criar uma ocorrência.</p>
+                        <div style={{ background: "var(--surface-bg)", borderRadius: 12, boxShadow: "var(--shadow-card)", padding: 32, maxWidth: 420, width: "100%", textAlign: "center" }}>
+                            <p style={{ fontSize: 18, color: "var(--text-main)" }}>Você precisa estar logado para criar uma ocorrência.</p>
                         </div>
                     </div>
                 </main>
@@ -111,21 +114,21 @@ export default function NewOccurrencePage() {
     return (
         <>
             <HomeHeader />
-            <main className={styles.page} style={{ background: "#fff", minHeight: "calc(100vh - 160px)" }}>
+            <main className={styles.page} style={{ background: "var(--page-bg)", minHeight: "calc(100vh - 160px)" }}>
                 <div className={styles.container} style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: 400 }}>
-                    <div style={{ background: "#fff", borderRadius: 12, boxShadow: "0 2px 12px #0001", padding: 32, maxWidth: 420, width: "100%" }}>
-                        <h1 style={{ fontSize: 26, fontWeight: 700, marginBottom: 32, textAlign: "center", color: "#222" }}>Nova Ocorrência</h1>
+                    <div style={{ background: "var(--surface-bg)", borderRadius: 12, boxShadow: "var(--shadow-card)", padding: 32, maxWidth: 420, width: "100%" }}>
+                        <h1 style={{ fontSize: 26, fontWeight: 700, marginBottom: 32, textAlign: "center", color: "var(--text-main)" }}>Nova Ocorrência</h1>
                         <form onSubmit={handleSubmit(onSubmit)}>
                             <div style={{ marginBottom: 28 }}>
-                                <label style={{ display: "block", fontWeight: 600, marginBottom: 8, color: "#222" }}>Nome do Pet *</label>
+                                <label style={{ display: "block", fontWeight: 600, marginBottom: 8, color: "var(--text-main)" }}>Nome do Pet *</label>
                                 <input
                                     type="text"
                                     {...register("petName")}
                                     style={{
                                         width: "100%",
-                                        border: "1px solid #ccc",
-                                        background: "#fff",
-                                        color: "#222",
+                                        border: "1px solid var(--border-input)",
+                                        background: "var(--input-bg)",
+                                        color: "var(--text-main)",
                                         borderRadius: 8,
                                         padding: "12px 14px",
                                         fontSize: 16,
@@ -134,18 +137,18 @@ export default function NewOccurrencePage() {
                                     placeholder="Digite o nome do pet"
                                 />
                                 {errors.petName && (
-                                    <span style={{ color: "#e57373", fontSize: 13, marginTop: 4, display: "block" }}>{errors.petName.message}</span>
+                                    <span style={{ color: "var(--danger)", fontSize: 13, marginTop: 4, display: "block" }}>{errors.petName.message}</span>
                                 )}
                             </div>
                             <div style={{ marginBottom: 28 }}>
-                                <label style={{ display: "block", fontWeight: 600, marginBottom: 8, color: "#222" }}>Descrição</label>
+                                <label style={{ display: "block", fontWeight: 600, marginBottom: 8, color: "var(--text-main)" }}>Descrição</label>
                                 <textarea
                                     {...register("description")}
                                     style={{
                                         width: "100%",
-                                        border: "1px solid #ccc",
-                                        background: "#fff",
-                                        color: "#222",
+                                        border: "1px solid var(--border-input)",
+                                        background: "var(--input-bg)",
+                                        color: "var(--text-main)",
                                         borderRadius: 8,
                                         padding: "12px 14px",
                                         fontSize: 16,
@@ -155,11 +158,11 @@ export default function NewOccurrencePage() {
                                     placeholder="Descreva detalhes relevantes (opcional)"
                                 />
                                 {errors.description && (
-                                    <span style={{ color: "#e57373", fontSize: 13, marginTop: 4, display: "block" }}>{errors.description.message}</span>
+                                    <span style={{ color: "var(--danger)", fontSize: 13, marginTop: 4, display: "block" }}>{errors.description.message}</span>
                                 )}
                             </div>
                             <div style={{ marginBottom: 28 }}>
-                                <label style={{ display: "block", fontWeight: 600, marginBottom: 8, color: "#222" }}>Data do último avistamento</label>
+                                <label style={{ display: "block", fontWeight: 600, marginBottom: 8, color: "var(--text-main)" }}>Data do último avistamento</label>
                                 <input
                                     type="date"
                                     lang="pt-BR"
@@ -168,9 +171,9 @@ export default function NewOccurrencePage() {
                                     })}
                                     style={{
                                         width: "100%",
-                                        border: "1px solid #ccc",
-                                        background: "#fff",
-                                        color: "#222",
+                                        border: "1px solid var(--border-input)",
+                                        background: "var(--input-bg)",
+                                        color: "var(--text-main)",
                                         borderRadius: 8,
                                         padding: "12px 14px",
                                         fontSize: 16,
@@ -178,15 +181,15 @@ export default function NewOccurrencePage() {
                                     }}
                                 />
                                 {errors.lastSeenDate && (
-                                    <span style={{ color: "#e57373", fontSize: 13, marginTop: 4, display: "block" }}>{errors.lastSeenDate.message}</span>
+                                    <span style={{ color: "var(--danger)", fontSize: 13, marginTop: 4, display: "block" }}>{errors.lastSeenDate.message}</span>
                                 )}
                             </div>
                             <div style={{ marginBottom: 28 }}>
-                                <label style={{ display: "block", fontWeight: 600, marginBottom: 8, color: "#222" }}>Localização no mapa *</label>
+                                <label style={{ display: "block", fontWeight: 600, marginBottom: 8, color: "var(--text-main)" }}>Localização no mapa *</label>
                                 <LocationPicker value={selectedLocation} onChange={setSelectedLocation} />
                             </div>
                             <div style={{ marginBottom: 28 }}>
-                                <label style={{ display: "block", fontWeight: 600, marginBottom: 8, color: "#222" }}>Imagens*</label>
+                                <label style={{ display: "block", fontWeight: 600, marginBottom: 8, color: "var(--text-main)" }}>Imagens*</label>
                                 <input
                                     type="file"
                                     {...imagesInputProps}
@@ -207,9 +210,9 @@ export default function NewOccurrencePage() {
                                     onClick={() => fileInputRef.current?.click()}
                                     style={{
                                         width: "100%",
-                                        border: "1px dashed #5a98eb",
-                                        background: "#f5f9ff",
-                                        color: "#2a5ea8",
+                                        border: "1px dashed var(--primary)",
+                                        background: "var(--primary-soft)",
+                                        color: "var(--primary-strong)",
                                         borderRadius: 8,
                                         padding: "12px 14px",
                                         fontWeight: 600,
@@ -222,22 +225,22 @@ export default function NewOccurrencePage() {
                                         <p style={{ margin: 0 }}>Selecionar imagens</p>
                                     </span>
                                 </button>
-                                <div style={{ color: "#5f6b7a", fontSize: 13, marginTop: 8 }}>
+                                <div style={{ color: "var(--text-muted)", fontSize: 13, marginTop: 8 }}>
                                     {selectedImagesCount > 0
                                         ? `${selectedImagesCount} imagem(ns) selecionada(s)`
                                         : "Nenhuma imagem selecionada"}
                                 </div>
                                 {errors.images && (
-                                    <span style={{ color: "#e57373", fontSize: 13, marginTop: 4, display: "block" }}>{errors.images.message}</span>
+                                    <span style={{ color: "var(--danger)", fontSize: 13, marginTop: 4, display: "block" }}>{errors.images.message}</span>
                                 )}
                             </div>
-                            {serverError && <div style={{ color: "#e57373", fontSize: 14, textAlign: "center", fontWeight: 500, marginBottom: 12 }}>{serverError}</div>}
-                            {success && <div style={{ color: "#43a047", fontSize: 14, textAlign: "center", fontWeight: 500, marginBottom: 12 }}>Ocorrência criada com sucesso!</div>}
+                            {serverError && <div style={{ color: "var(--danger)", fontSize: 14, textAlign: "center", fontWeight: 500, marginBottom: 12 }}>{serverError}</div>}
+                            {success && <div style={{ color: "var(--success)", fontSize: 14, textAlign: "center", fontWeight: 500, marginBottom: 12 }}>Ocorrência criada com sucesso!</div>}
                             <button
                                 type="submit"
                                 style={{
                                     width: "100%",
-                                    background: "#5a98eb",
+                                    background: "var(--primary)",
                                     color: "#fff",
                                     padding: "14px 0",
                                     borderRadius: 8,
@@ -246,7 +249,7 @@ export default function NewOccurrencePage() {
                                     border: "none",
                                     marginTop: 8,
                                     cursor: "pointer",
-                                    boxShadow: "0 2px 8px #5a98eb22"
+                                    boxShadow: "var(--shadow-card)"
                                 }}
                                 disabled={isSubmitting}
                             >

@@ -218,12 +218,11 @@ export async function getSightingsByPost(postId: string, token?: string): Promis
     return response.data as SightingApiResponse[];
 }
 
-// Denúncia de comentário desativada por enquanto.
-// export async function reportComment(data: { commentId: string; reason?: string | null }, token?: string) {
-//     const response = await api.patch("/comment", { ...data, action: "report" }, {
-//         headers: authHeader(token),
-//     });
-//     return response.data as { deleted: boolean; comment: CommentApiResponse | null };
-// }
+export async function reportComment(data: { commentId: string; reason?: string | null }, token?: string) {
+    const response = await api.patch("/comment", { ...data, action: "report" }, {
+        headers: authHeader(token),
+    });
+    return response.data as { created: boolean; comment: CommentApiResponse | null };
+}
 
 export default api;

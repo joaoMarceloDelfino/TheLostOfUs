@@ -16,6 +16,7 @@ const actions = [
     title: "PERDI MEU PET –",
     description: "Cadastrar anuncio de desaparecimento",
     backgroundColor: "#ecd789",
+    href: "/new-occurrence",
   },
   {
     imageSrc: "/images/localizacao.png",
@@ -30,8 +31,13 @@ const actions = [
     title: "MEUS ALERTAS",
     description: "• Gerenciar seus anuncios ativos",
     backgroundColor: "#98ea84",
+    href: "/history",
   },
 ];
+
+function normalizeSearchValue(value: unknown): string {
+  return String(value ?? "").toLowerCase();
+}
 
 
 
@@ -56,6 +62,25 @@ export default function HomePage() {
   const [posts, setPosts] = useState<PostApiResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const normalizedSearchTerm = searchTerm.trim().toLowerCase();
+  const filteredPosts = normalizedSearchTerm
+    ? posts.filter((post) => {
+        const searchValues = [
+          post.pet_name,
+          post.description,
+          post.authorName,
+          post.last_seen_location_label,
+          post.last_seen_location_latitude,
+          post.last_seen_location_longitude,
+        ];
+
+        return searchValues.some((value) =>
+          normalizeSearchValue(value).includes(normalizedSearchTerm)
+        );
+      })
+    : posts;
 
 
   return (
@@ -72,12 +97,27 @@ export default function HomePage() {
               title={action.title}
               description={action.description}
               backgroundColor={action.backgroundColor}
+              href={action.href}
             />
           ))}
         </section>
 
         <section className={styles.sightingsSection}>
           <h2 className={styles.sectionTitle}>Ultimas Ocorrências</h2>
+
+          <div className={styles.searchBar}>
+            <label htmlFor="post-search" className={styles.searchLabel}>
+              Pesquisar ocorrencias
+            </label>
+            <input
+              id="post-search"
+              type="search"
+              className={styles.searchInput}
+              placeholder="Nome, descricao, localizacao ou autor"
+              value={searchTerm}
+              onChange={(event) => setSearchTerm(event.target.value)}
+            />
+          </div>
 
           <div className={styles.sightingsGrid}>
             {loading ? (
@@ -86,8 +126,10 @@ export default function HomePage() {
               <div>{error}</div>
             ) : posts.length === 0 ? (
               <div>Nenhum post encontrado.</div>
+            ) : filteredPosts.length === 0 ? (
+              <div>Nenhuma ocorrencia encontrada para essa pesquisa.</div>
             ) : (
-              posts.map((post, index) => {
+              filteredPosts.map((post, index) => {
                 const imageUris = post.petimages?.map((img) => img.image_uri) || ["/images/animal-1.png"];
                 const hasLocation = post.last_seen_location_latitude != null && post.last_seen_location_longitude != null;
                 const postLocation = hasLocation
@@ -118,6 +160,7 @@ export default function HomePage() {
                     status={"Desaparecido"}
                     rawLastSeenDate={post.last_seen_date}
                     initialSightingLocation={sightingLocation}
+                    createdAt={post.created_at}
                   />
                 );
               })

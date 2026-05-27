@@ -13,7 +13,7 @@ import {
   getComments,
   getSightingsByPost,
   type SightingApiResponse,
-  // reportComment,
+  reportComment,
   updateComment,
   voteComment,
 } from "@/lib/apiClient";
@@ -32,6 +32,7 @@ interface SightingCardProps {
   date: string;
   status: string;
   rawLastSeenDate?: string | Date | null;
+  createdAt?: string | Date | null;
   allowCommentActions?: boolean;
   initialSightingLocation?: LocationCoordinates | null;
 }
@@ -53,13 +54,14 @@ type CommentItemProps = {
   onEditSubmit: (commentId: string) => Promise<void>;
   onDelete: (commentId: string) => Promise<void>;
   onVote: (commentId: string, value: 1 | -1) => Promise<void>;
+  onReport: (commentId: string) => Promise<void>;
   allowCommentActions: boolean;
-  // onReport: (commentId: string) => Promise<void>;
 };
 
 type SightingItemProps = {
   sighting: SightingApiResponse;
 };
+
 
 function CommentItem({
   comment,
@@ -78,6 +80,7 @@ function CommentItem({
   onEditSubmit,
   onDelete,
   onVote,
+  onReport,
   allowCommentActions,
 }: CommentItemProps) {
   const isEditing = activeEditId === comment.id;
@@ -127,8 +130,7 @@ function CommentItem({
           <button className={styles.textButton} onClick={() => onReplyStart(comment.id)}>Responder</button>
           {comment.canEdit && <button className={styles.textButton} onClick={() => onEditStart(comment)}>Editar</button>}
           {comment.canDelete && <button className={styles.textButtonDanger} onClick={() => onDelete(comment.id)}>Excluir</button>}
-          {/* Denúncia de comentário desativada por enquanto. */}
-          {/* <button className={styles.textButton} onClick={() => onReport(comment.id)}>Denunciar</button> */}
+          <button className={styles.textButton} onClick={() => onReport(comment.id)}>Denunciar</button>
         </div>
       )}
 
@@ -168,6 +170,7 @@ function CommentItem({
               onEditSubmit={onEditSubmit}
               onDelete={onDelete}
               onVote={onVote}
+              onReport={onReport}
               allowCommentActions={allowCommentActions}
             />
           ))}
@@ -214,6 +217,7 @@ const SightingCard = ({
   location,
   date,
   status,
+  createdAt,
   allowCommentActions = true,
   initialSightingLocation = null,
 }: SightingCardProps) => {
@@ -235,6 +239,7 @@ const SightingCard = ({
   const [sightingOpen, setSightingOpen] = useState(false);
   const [sightingSaving, setSightingSaving] = useState(false);
   const [sightingError, setSightingError] = useState<string | null>(null);
+  const [commentInfoMessage, setCommentInfoMessage] = useState<string | null>(null);
   const images = Array.isArray(imageSrc) ? imageSrc : [imageSrc];
   const currentImage = images[currentImageIndex];
   const hasMultipleImages = images.length > 1;
@@ -242,6 +247,7 @@ const SightingCard = ({
   const loadComments = async () => {
     setLoadingComments(true);
     setCommentError(null);
+    setCommentInfoMessage(null);
     try {
       const data = await getComments(postId);
       setComments(data);
@@ -363,18 +369,19 @@ const SightingCard = ({
     }
   };
 
-  // Denúncia de comentário desativada por enquanto.
-  // const handleReportComment = async (commentId: string) => {
-  //   try {
-  //     const result = await reportComment({ commentId });
-  //     if (result.deleted) {
-  //       setCommentError("Comentário removido automaticamente após atingir o limite de denúncias.");
-  //     }
-  //     await loadComments();
-  //   } catch {
-  //     setCommentError("Não foi possível denunciar esse comentário.");
-  //   }
-  // };
+  const handleReportComment = async (commentId: string) => {
+    try {
+      const result = await reportComment({ commentId });
+      await loadComments();
+      setCommentInfoMessage(
+        result.created
+          ? "Comentário denunciado."
+          : "Você já denunciou esse comentário."
+      );
+    } catch {
+      setCommentError("Não foi possível denunciar esse comentário.");
+    }
+  };
 
   return (
     <article className={styles.card}>
@@ -419,6 +426,7 @@ const SightingCard = ({
       <header className={styles.header}>
         <h3 className={styles.name}>{name}</h3>
         <p className={styles.author}>Publicado por {authorName || "Autor desconhecido"}</p>
+        {createdAt && <p className={styles.author}>Publicado {formatRelativeTime(createdAt)}</p>}
       </header>
 
       <section className={styles.keyInfo}>
@@ -430,9 +438,14 @@ const SightingCard = ({
           <span className={styles.infoLabel}>Localização do Último Avistamento</span>
           <span className={styles.infoValue}>{location}</span>
         </div>
+
+         <div className={styles.infoItem}>
+          <span className={styles.infoLabel}>Descrição</span>
+          <span className={styles.description}>{description}</span>
+        </div>
       </section>
 
-      {description && <p className={styles.description}>{description}</p>}
+      {/* {description && <p className={styles.description}>{description}</p>} */}
 
       <div className={styles.sightingActions}>
         <button
@@ -515,6 +528,7 @@ const SightingCard = ({
             )}
 
             {commentError && <p className={styles.commentError}>{commentError}</p>}
+            {commentInfoMessage && <p className={styles.commentInfo}>{commentInfoMessage}</p>}
             {loadingComments ? (
               <p className={styles.commentInfo}>Carregando comentários...</p>
             ) : comments.length === 0 ? (
@@ -554,6 +568,7 @@ const SightingCard = ({
                     onEditSubmit={handleEditSubmit}
                     onDelete={handleDeleteComment}
                     onVote={handleVoteComment}
+                    onReport={handleReportComment}
                     allowCommentActions={allowCommentActions}
                   />
                 ))}
