@@ -1,11 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import { useAuth, UserButton } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
-import { MoonIcon, SunIcon } from "@heroicons/react/24/solid";
+import { BellAlertIcon, BellIcon, MoonIcon, SunIcon } from "@heroicons/react/24/solid";
 import { useTheme } from "@/app/components/theme/ThemeProvider";
 import styles from "./HomeHeader.module.css";
-import { BellIcon, BellAlertIcon } from "@heroicons/react/24/solid";
 
 export default function HomeHeader() {
   const [unread, setUnread] = useState<number>(0);
@@ -30,6 +30,7 @@ export default function HomeHeader() {
   }, []);
 
   const { theme, toggleTheme } = useTheme();
+  const { isSignedIn } = useAuth();
   const isDark = theme === "dark";
 
   return (
@@ -70,19 +71,23 @@ export default function HomeHeader() {
               </span>
             )}
           </Link>
-          <button
-            type="button"
-            className={styles.themeToggle}
-            onClick={toggleTheme}
-            aria-label={isDark ? "Ativar tema claro" : "Ativar tema escuro"}
-            title={isDark ? "Ativar tema claro" : "Ativar tema escuro"}
-          >
-            {isDark ? (
-              <MoonIcon className={styles.themeIcon} aria-hidden="true" />
-            ) : (
-              <SunIcon className={styles.themeIcon} aria-hidden="true" />
-            )}
-          </button>
+          <div className={styles.headerActions}>
+            <button
+              type="button"
+              className={styles.themeToggle}
+              onClick={toggleTheme}
+              aria-label={isDark ? "Ativar tema claro" : "Ativar tema escuro"}
+              title={isDark ? "Ativar tema claro" : "Ativar tema escuro"}
+            >
+              {isDark ? (
+                <MoonIcon className={styles.themeIcon} aria-hidden="true" />
+              ) : (
+                <SunIcon className={styles.themeIcon} aria-hidden="true" />
+              )}
+            </button>
+
+            {isSignedIn && <UserButton userProfileMode="modal" />}
+          </div>
         </nav>
       </div>
     </header>

@@ -40,6 +40,12 @@
   opacity: 0.8;
 }
 
+.headerActions {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .themeToggle {
   width: 34px;
   height: 34px;
