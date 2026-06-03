@@ -580,7 +580,7 @@ const SightingCard = ({
                     onEditSubmit={handleEditSubmit}
                     onDelete={handleDeleteComment}
                     onVote={handleVoteComment}
-                    onReport={userId && postUserSub && userId === postUserSub ? undefined : handleReportComment}
+                    onReport={handleReportComment}
                     allowCommentActions={allowCommentActions}
                   />
                 ))}
